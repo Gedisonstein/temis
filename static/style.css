@@ -31,26 +31,26 @@ body {
 .sidebar-header {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centraliza horizontalmente */
-    text-align: center; /* Centraliza o texto */
+    align-items: center;
+    text-align: center;
 }
 
 .sidebar-logo {
-    max-width: 30%; /* Garante que a logo não ultrapasse a largura do container */
-    height: auto; /* Mantém a proporção da imagem */
+    max-width: 30%;
+    height: auto;
     margin-top: 10px;
 }
 
 .estude-text {
     font-size: 1.1rem;
     color: rgb(0, 0, 0);
-    margin-top: 5px; /* Espaçamento entre a logo e o texto */
+    margin-top: 5px;
 }
 
 .email-text {
     font-size: 0.8rem;
     color: rgb(0, 0, 0);
-    margin-top: 5px; /* Espaçamento entre a logo e o texto */
+    margin-top: 5px;
 }
 
 .sidebar-content {
@@ -89,10 +89,8 @@ body {
     align-items: center;
     margin-right: auto;
     margin-left: auto;
-    /*margin-top: 1px; /* Espaçamento entre a logo e o texto */
 }
 
-/* Estilo para o container da imagem QR */
 .sidebar-qr {
     padding: 10px;
     display: flex;
@@ -100,9 +98,8 @@ body {
     align-items: center;
 }
 
-/* Estilo para a imagem QR */
 .qr-image {
-    width: 150px; /* Ajuste conforme o tamanho desejado */
+    width: 150px;
     height: 150px;
     object-fit: contain;
 }
@@ -114,10 +111,10 @@ body {
     background-color: #f5f5f5;
     padding: 20px;
     overflow-y: auto;
-    position: relative; /* Para posicionar os ícones no canto superior direito */
+    position: relative;
+    -webkit-overflow-scrolling: touch; /* Melhora o scroll em dispositivos */
 }
 
-/* Estilo para os ícones no canto superior direito */
 .top-right-icons {
     position: absolute;
     top: 20px;
@@ -152,9 +149,10 @@ h1 {
 }
 
 .chat-container {
-    flex: 1;
+    flex: auto;
     overflow-y: auto;
     padding-bottom: 20px;
+    min-height: 0; /* Evita problemas com flexbox no Edge */
 }
 
 .message {
@@ -210,7 +208,6 @@ h1 {
     padding: 5px 10px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     position: relative;
-    
 }
 
 .developer-text {
@@ -219,13 +216,12 @@ h1 {
     align-items: center;
     margin-right: auto;
     margin-left: auto;
-    /*margin-top: 1px; /* Espaçamento entre a logo e o texto */
 }
 
 .new-chat-btn {
     width: 30px;
     height: 30px;
-    background-image: url('/static/novo_chat.png'); /*???????????????*/
+    background-image: url('/static/novo_chat.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -239,15 +235,27 @@ h1 {
     opacity: 0.8;
 }
 
-input[type="text"] {
+.message-input {
     flex: 1;
+    padding: 10px 15px;
     border: none;
-    outline: none;
-    padding: 10px;
+    border-radius: 20px;
     font-size: 16px;
-    background-color: transparent;
+    font-family: sans-serif;
+    line-height: 1.5;
+    outline: none;
+    resize: none;
+    overflow-y: auto; /* Alterado para auto para evitar problemas no Edge */
+    min-height: 40px;
+    max-height: 120px;
+    box-sizing: border-box;
     display: block !important;
     visibility: visible !important;
+}
+
+.message-input:focus {
+    border: none;
+    outline: none;
 }
 
 .send-button {
@@ -290,6 +298,7 @@ input[type="text"] {
 
 .config-header h1 {
     font-size: 1.5rem;
+
     font-weight: 600;
     color: #333;
 }
@@ -402,8 +411,6 @@ input[type="text"] {
         background-color: #d1d5db;
     }
 
-    /* Removido o estilo do sidebar-footer no media query */
-
     .main-content {
         background-color: #f5f5f5;
     }
@@ -456,211 +463,137 @@ input[type="text"] {
     .config-content a {
         color: #000000;
     }
+}
 
-    .spinner {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1000;
-        justify-content: center;
-        align-items: center;
+.spinner {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner-circle {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #000000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
     }
-
-    .spinner-circle {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #000000;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
+    100% {
+        transform: rotate(360deg);
     }
+}
 
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    resize: vertical;
+}
 
-        100% {
-            transform: rotate(360deg);
-        }
-    }
+.form-group textarea:focus {
+    border-color: #000000;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
 
-    .form-group textarea {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        resize: vertical;
-    }
+pre {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    overflow-x: auto;
+    margin: 5px 0;
+    position: relative;
+}
 
-    .form-group textarea:focus {
-        border-color: #000000;
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-    }
+code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
 
-    pre {
-        background-color: #f4f4f4;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 10px;
-        overflow-x: auto;
-        margin: 5px 0;
-        position: relative;
-    }
+.message {
+    word-wrap: break-word;
+}
 
-    code {
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 14px;
-        white-space: pre-wrap;
-    }
+.copy-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #000000;
+    font-size: 16px;
+    padding: 5px;
+    transition: color 0.2s;
+}
 
-    .message {
-        word-wrap: break-word;
-    }
+.copy-button:hover {
+    color: #fea500;
+}
 
-    .copy-button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: #000000;
-        font-size: 16px;
-        padding: 5px;
-        transition: color 0.2s;
-    }
+.copy-button i {
+    font-size: 16px;
+}
 
-    .copy-button:hover {
-        color: #fea500;
-    }
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
 
-    .copy-button i {
-        font-size: 16px;
-    }
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+}
 
-    /* Estilo do popup */
-    .popup {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        max-width: 400px;
-        width: 90%;
-        text-align: center;
-        display: none;
-        /* Inicialmente escondido */
-    }
+.popup-content {
+    margin-bottom: 20px;
+    font-size: 1rem;
+    color: #333;
+}
 
-    .popup-content {
-        margin-bottom: 15px;
-        font-size: 16px;
-        color: #333;
-    }
+.popup button {
+    padding: 10px 20px;
+    background-color: #fea500;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
 
-    .popup button {
-        padding: 10px 20px;
-        background-color: #050505;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-
-    .popup button:hover {
-        background-color: #000000;
-    }
-
-    /* Overlay para escurecer o fundo */
-    .popup-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        display: none;
-        /* Inicialmente escondido */
-    }
-
-
-    /* :::::::::::::::::::::::*/
-
-
-
-    /* Container do input */
-    .input-container {
-        display: flex;
-        align-items: center;
-        flex: 1;
-        max-width: 800px
-    }
-
-    /* Estilo do ícone de anexo */
-    .custom-file-upload {
-        cursor: pointer;
-        margin-right: 10px;
-        font-size: 20px;
-        color: #0b0b0b;
-        /* Cor do ícone de anexo */
-    }
-
-    /* Estilo do textarea (substitui o input) */
-    .message-input {
-        flex: 1;
-        padding: 10px 15px;
-        border: 1px solid #ffffff;
-        /* Borda  clara */
-        border-radius: 20px;
-        /* Bordas arredondadas como na imagem */
-        font-size: 16px;
-        font-family: sans-serif; /* Fonte sem serifa */
-        line-height: 1.5;
-        outline: none;
-        resize: none;
-        /* Impede redimensionamento manual */
-        overflow-y: hidden;
-        /* Esconde a barra de rolagem vertical */
-        min-height: 40px;
-        /* Altura inicial para parecer uma linha única */
-        max-height: 120px;
-        /* Altura máxima antes de rolagem */
-        transition: border-color 0.3s ease;
-        /* Transição suave para a borda ao focar */
-    }
-
-    /* Estilo do textarea ao focar */
-    .message-input:focus {
-        border-color: #050505;
-        /* Cor da borda ao focar (verde-azulado) */
-    }
-
-    /* Estilo do textarea quando desabilitado */
-    .message-input:disabled {
-        background-color: #ffffff;
-        cursor: not-allowed;
-    }
-
-    /* Estilo do botão de envio */
-    .send-button {
-        background: none;
-        border: none;
-        cursor: pointer;
-        margin-left: 10px;
-        font-size: 20px;
-        color: #000000;
-        /* Cor do ícone de envio (verde-azulado) */
-    }
+.popup button:hover {
+    background-color: #e69500;
 }
