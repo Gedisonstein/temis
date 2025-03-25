@@ -1,0 +1,15 @@
+.\.venv\Scripts\Activate.ps1   >> ativa ambiente virtual
+pip install -r requirements.txt   >> instala bibliotecas do arquivo requirements
+Set-ExecutionPolicy AllSigned    >> caso tenham problemas inicializando o ambiente virtual no powershell (como adm)
+
+python app.py
+
+http://localhost:5000
+
+
+sk-d515c0103f154366a7c8d639a633c0ff
+
+https://pago-2023-default-rtdb.firebaseio.com/*Pago_Backup.json
+
+
+GOOGLE_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycby2hwcHk8KVEdHkWyX28yk8dgjOUSBA9a0DF0ohhB2ABMgYawyu8ut2HJ-B3qqEH9an1Q/exec"
