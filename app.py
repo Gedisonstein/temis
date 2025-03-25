@@ -528,6 +528,8 @@ def check_email():
 
     try:
         response = requests.get(api_url, timeout=10)
+        print(f"Status da resposta: {response.status_code}")
+        print(f"Resposta bruta da API: {response.text}")
         response.raise_for_status()
         data = response.json()
 
@@ -548,6 +550,7 @@ def check_email():
             return jsonify({'success': False, 'message': f'O e-mail {email} foi encontrado, mas o dicionário não contém a chave "{email_chave_dict}": {email_data.keys()}.'})
 
         value = email_data[email_chave_dict]
+        print(f"Valor de 'value' antes do json.loads: {value}")
         if not isinstance(value, str):
             return jsonify({'success': False, 'message': f'O valor da chave "{email_chave_dict}" não é uma string JSON: tipo {type(value)}.'})
 
