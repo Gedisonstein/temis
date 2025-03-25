@@ -550,6 +550,8 @@ def inicializa_modelo_padrao():
         print("Nenhuma API Key padrão encontrada.")
 
 # Inicializa a aplicação
+
+inicializa_modelo_padrao()  # Chama a inicialização sempre que o app é carregado
+
 if __name__ == '__main__':
-    inicializa_modelo_padrao()
     app.run(debug=True, host='0.0.0.0', port=5000)
