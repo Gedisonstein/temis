@@ -1,0 +1,16 @@
+flask
+requests
+beautifulsoup4
+langchain
+langchain-groq
+langchain-openai
+langchain-deepseek
+langchain_community
+validators
+pandas
+python-dotenv
+fake_useragent
+pypdf2
+gunicorn
+cryptography
+python-docx
