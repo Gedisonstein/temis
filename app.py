@@ -234,6 +234,7 @@ def inicializa_modelo(provedor, modelo, api_key, system_prompt=None):
             print(f"Aviso: MAX_TOKENS_PER_RESPONSE ajustado para {adjusted_max_tokens}.")
         
         if not app.config['chat_model'] or app.config.get('provedor') != provedor or app.config.get('modelo') != modelo:
+            print(f"Tentando inicializar {provedor}/{modelo} com API Key: {api_key[:5]}...")  # Log parcial da chave
             chat = CONFIG_MODELOS[provedor]['chat'](
                 model=modelo,
                 api_key=api_key,
@@ -281,6 +282,21 @@ def index():
     global MEMORIA
     chain = app.config.get('chain')
     files = app.config.get('files')
+
+    # Se o chain não estiver inicializado, tenta inicializar
+    if not chain:
+        provedor_padrao = 'DeepSeek'
+        modelo_padrao = 'deepseek-chat'
+        api_key_padrao = os.getenv('DEEPSEEK_API_KEY')
+        if api_key_padrao:
+            chain = inicializa_modelo(provedor_padrao, modelo_padrao, api_key_padrao)
+            if chain:
+                app.config['chain'] = chain
+                app.config['provedor'] = provedor_padrao
+                app.config['modelo'] = modelo_padrao
+                print("Modelo inicializado automaticamente na rota /.")
+            else:
+                print("Falha ao inicializar o modelo automaticamente na rota /.")
 
     if request.method == 'POST':
         mensagem = request.form.get('mensagem', '').strip()
@@ -576,6 +592,7 @@ def inicializa_modelo_padrao():
     provedor_padrao = 'DeepSeek'
     modelo_padrao = 'deepseek-chat'
     api_key_padrao = os.getenv('DEEPSEEK_API_KEY')
+    print(f"DEEPSEEK_API_KEY carregada: {api_key_padrao}")  # Log da chave
     if api_key_padrao:
         chain = inicializa_modelo(provedor_padrao, modelo_padrao, api_key_padrao)
         if chain:
