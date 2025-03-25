@@ -210,7 +210,7 @@ def carrega_docx(caminho):
         print(f"Erro ao carregar DOCX: {str(e)}")
         return f"Erro ao carregar DOCX: {str(e)}"
 
-# Função para inicializar o modelo
+# Função para inicializar o modelos
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
