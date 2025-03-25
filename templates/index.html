@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Adicionado para compatibilidade com Edge -->
     <title>Converse com o Têmis</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -14,24 +14,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"
-        async></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
 </head>
-
 <body>
     <div class="app-container">
         <div class="sidebar">
-
             <div class="sidebar-header">
                 <img id="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo Têmis" class="sidebar-logo">
-                <div class="estude-text">
-                    Estude Direito
-                </div>
-                <div class="email-text">
-                    Usuário
-                </div>
+                <div class="estude-text">Estude Direito</div>
+                <div class="email-text">Usuário</div>
             </div>
-
             <div class="sidebar-content">
                 <div class="chat-history">
                     <div class="chat-item">D. Administrativo</div>
@@ -41,13 +33,9 @@
                     <div class="chat-item">P. Cívil</div>
                     <div class="chat-item">D. Consumidor</div>
                     <div class="chat-item">D. Tributário</div>
-
                 </div>
             </div>
-            <!-- Adicionando a imagem QR no canto inferior esquerdo -->
-            <div class="melhosapp-text">
-                O melhor app do Brasil
-            </div>
+            <div class="melhosapp-text">O melhor app do Brasil</div>
             <div class="sidebar-qr">
                 <img src="{{ url_for('static', filename='QR.png') }}" alt="QR Code" class="qr-image">
             </div>
@@ -89,12 +77,8 @@
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
-
             </form>
-            <div class="developer-text">
-                Desenvolvido por Gedison Stein
-            </div>
-
+            <div class="developer-text">Desenvolvido por Gedison Stein</div>
         </div>
     </div>
 
@@ -168,7 +152,11 @@
             chatContainer.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
             addCopyButtonToCodeBlocks();
-            Prism.highlightAll();
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            } else {
+                console.warn('Prism não carregou corretamente.');
+            }
             if (typeof MathJax !== 'undefined') {
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, contentDiv]);
             }
@@ -250,15 +238,14 @@
             const mensagem = mensagemInput.value.trim();
             mensagemInput.style.border = isValidUrl(mensagem) ? '2px solid #007bff' : '';
             mensagemInput.title = isValidUrl(mensagem) ? "URL detectada!" : '';
-            // Ajusta a altura do textarea dinamicamente
             mensagemInput.style.height = 'auto';
             mensagemInput.style.height = `${mensagemInput.scrollHeight}px`;
+            console.log('Altura ajustada:', mensagemInput.style.height); // Debug
         });
 
-        // Adiciona evento de tecla para Shift + Enter
         document.getElementById('mensagem').addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && e.shiftKey) {
-                e.preventDefault(); // Impede o envio do formulário
+                e.preventDefault();
                 const mensagemInput = this;
                 const start = mensagemInput.selectionStart;
                 const end = mensagemInput.selectionEnd;
@@ -266,7 +253,7 @@
                 mensagemInput.value = value.substring(0, start) + '\n' + value.substring(end);
                 mensagemInput.selectionStart = mensagemInput.selectionEnd = start + 1;
                 mensagemInput.style.height = 'auto';
-                mensagemInput.style.height = `${mensagemInput.scrollHeight}px`; // Ajusta a altura
+                mensagemInput.style.height = `${mensagemInput.scrollHeight}px`;
             }
         });
 
@@ -277,7 +264,6 @@
             const arquivo = document.getElementById('arquivo').files[0];
             if (!mensagem && !arquivo) return;
 
-            // Verifica se há um e-mail no email-text antes de enviar a mensagem
             const emailText = document.querySelector('.email-text').textContent.trim();
             if (emailText === 'Usuário' || emailText === '') {
                 showPopup("Por favor, clique na logo para verificar seu usuário.");
@@ -332,7 +318,7 @@
                     mensagemInput.disabled = false;
                     mensagemInput.style.backgroundColor = '';
                     mensagemInput.style.border = '';
-                    mensagemInput.style.height = 'auto'; // Reseta a altura
+                    mensagemInput.style.height = 'auto';
                     ensureInputVisible();
                 })
                 .catch(error => {
@@ -342,7 +328,7 @@
                     mensagemInput.disabled = false;
                     mensagemInput.style.backgroundColor = '';
                     mensagemInput.style.border = '';
-                    mensagemInput.style.height = 'auto'; // Reseta a altura
+                    mensagemInput.style.height = 'auto';
                     ensureInputVisible();
                 });
         });
@@ -358,7 +344,7 @@
                         mensagemInput.disabled = false;
                         mensagemInput.style.backgroundColor = '';
                         mensagemInput.style.border = '';
-                        mensagemInput.style.height = 'auto'; // Reseta a altura
+                        mensagemInput.style.height = 'auto';
                         ensureInputVisible();
                     } else {
                         addMessageToChat('Têmis', 'Erro ao iniciar nova conversa: ' + data.message, 'bot');
@@ -430,7 +416,6 @@
                         showPopup(data.message);
                         if (data.item_7 === 'IA') {
                             localStorage.setItem('item_7', 'IA');
-                            // Atualiza o elemento email-text com o e-mail do usuário
                             document.querySelector('.email-text').textContent = email;
                         }
                     })
@@ -444,11 +429,10 @@
         document.addEventListener('DOMContentLoaded', function () {
             addCopyButtonToCodeBlocks();
             ensureInputVisible();
-            Prism.highlightAll();
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            }
         });
     </script>
-    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'92484f7b8c06ad58',t:'MTc0MjY3Mzk5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
-    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'924eceecb833453d',t:'MTc0Mjc0MjEzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
 </body>
-
 </html>
