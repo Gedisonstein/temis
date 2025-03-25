@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Adicionado para compatibilidade com Edge -->
+    <title>Configurações do Têmis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo Têmis" class="sidebar-logo">
+            </div>
+            <div class="sidebar-content">
+                <div class="chat-history">
+                    <div class="chat-item">D. Administrativo</div>
+                    <div class="chat-item">D. Penal</div>
+                    <div class="chat-item">P. Penal</div>
+                    <div class="chat-item">D. Cívil</div>
+                    <div class="chat-item">P. Cívil</div>
+                    <div class="chat-item">D. Consumidor</div>
+                    <div class="chat-item">D. Tributário</div>
+                </div>
+            </div>
+            <div class="sidebar-qr">
+                <img src="{{ url_for('static', filename='QR.png') }}" alt="QR Code" class="qr-image">
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="top-right-icons">
+                <a href="{{ url_for('download') }}" class="icon-link" title="Baixar Histórico">
+                    <i class="fas fa-download"></i>
+                </a>
+                <a href="#" id="config-link" class="icon-link" title="Configurações">
+                    <i class="fas fa-cog"></i>
+                </a>
+            </div>
+            <div class="config-header">
+                <h1>
+                    <img src="{{ url_for('static', filename='logo_2.png') }}" alt="Logo 2 Têmis" class="header-logo">
+                    Configurações do Têmis
+                </h1>
+            </div>
+            <div class="config-content">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for message in messages %}
+                                <p>{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="provider">Provedor:</label>
+                        <select name="provider" id="provider">
+                            <option value="deepseek" {% if config.provider == 'deepseek' %}selected{% endif %}>DeepSeek</option>
+                            <option value="openai" {% if config.provider == 'openai' %}selected{% endif %}>OpenAI</option>
+                            <option value="groq" {% if config.provider == 'groq' %}selected{% endif %}>Groq</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="model">Modelo:</label>
+                        <select name="model" id="model">
+                            {% if config.provider == 'deepseek' %}
+                                <option value="deepseek-coder" {% if config.model == 'deepseek-coder' %}selected{% endif %}>DeepSeek Coder</option>
+                                <option value="deepseek-chat" {% if config.model == 'deepseek-chat' %}selected{% endif %}>DeepSeek Chat</option>
+                            {% elif config.provider == 'openai' %}
+                                <option value="gpt-3.5-turbo" {% if config.model == 'gpt-3.5-turbo' %}selected{% endif %}>GPT-3.5 Turbo</option>
+                                <option value="gpt-4" {% if config.model == 'gpt-4' %}selected{% endif %}>GPT-4</option>
+                            {% elif config.provider == 'groq' %}
+                                <option value="llama3-8b-8192" {% if config.model == 'llama3-8b-8192' %}selected{% endif %}>LLaMA3 8B</option>
+                                <option value="llama3-70b-8192" {% if config.model == 'llama3-70b-8192' %}selected{% endif %}>LLaMA3 70B</option>
+                                <option value="mixtral-8x7b-32768" {% if config.model == 'mixtral-8x7b-32768' %}selected{% endif %}>Mixtral 8x7B</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="api_key">API Key:</label>
+                        <input type="text" name="api_key" id="api_key" value="{{ config.api_key }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="prompt">Prompt Padrão:</label>
+                        <textarea name="prompt" id="prompt" rows="5">{{ config.prompt }}</textarea>
+                    </div>
+                    <button type="submit">Salvar Configurações</button>
+                    <a href="{{ url_for('index') }}">Voltar ao Chat</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('provider').addEventListener('change', function() {
+            const provider = this.value;
+            const modelSelect = document.getElementById('model');
+            modelSelect.innerHTML = '';
+
+            if (provider === 'deepseek') {
+                modelSelect.innerHTML = `
+                    <option value="deepseek-coder">DeepSeek Coder</option>
+                    <option value="deepseek-chat">DeepSeek Chat</option>
+                `;
+            } else if (provider === 'openai') {
+                modelSelect.innerHTML = `
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="gpt-4">GPT-4</option>
+                `;
+            } else if (provider === 'groq') {
+                modelSelect.innerHTML = `
+                    <option value="llama3-8b-8192">LLaMA3 8B</option>
+                    <option value="llama3-70b-8192">LLaMA3 70B</option>
+                    <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                `;
+            }
+        });
+
+        document.querySelectorAll('.chat-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const specialty = this.textContent.trim();
+                const formData = new FormData();
+                formData.append('specialty', specialty);
+
+                fetch('/set-specialty', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao mudar especialidade:', error);
+                });
+            });
+        });
+
+        document.getElementById('config-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            const password = prompt('Digite a senha para acessar as configurações:');
+            if (password) {
+                const formData = new FormData();
+                formData.append('password', password);
+                fetch('/check-config-password', { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) window.location.href = '/config';
+                    else alert(data.message);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

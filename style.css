@@ -1,0 +1,599 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.sidebar {
+    width: 260px;
+    background-color: #202123;
+    color: #d1d5db;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #343541;
+}
+
+.sidebar-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.sidebar-logo {
+    max-width: 30%;
+    height: auto;
+    margin-top: 10px;
+}
+
+.estude-text {
+    font-size: 1.1rem;
+    color: rgb(0, 0, 0);
+    margin-top: 5px;
+}
+
+.email-text {
+    font-size: 0.8rem;
+    color: rgb(0, 0, 0);
+    margin-top: 5px;
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 5%;
+    overflow-y: auto;
+}
+
+.chat-history {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.chat-item {
+    padding: 10px;
+    background-color: #000000;
+    border-radius: 5px;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.chat-item:hover {
+    background-color: #fea500;
+}
+
+.chat-item.active {
+    background-color: #fea500;
+    color: #000000;
+}
+
+.melhosapp-text {
+    font-size: 1.1rem;
+    color: rgb(0, 0, 0);
+    align-items: center;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.sidebar-qr {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.qr-image {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f5f5;
+    padding: 20px;
+    overflow-y: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch; /* Melhora o scroll em dispositivos */
+}
+
+.top-right-icons {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+.icon-link {
+    color: #000000;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.2s;
+}
+
+.icon-link:hover {
+    color: #fea500;
+}
+
+h1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.header-logo {
+    height: 80px;
+    width: auto;
+}
+
+.chat-container {
+    flex: auto;
+    overflow-y: auto;
+    padding-bottom: 20px;
+    min-height: 0; /* Evita problemas com flexbox no Edge */
+}
+
+.message {
+    max-width: 70%;
+    margin: 10px 0;
+    padding: 10px 15px;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    line-height: 1.5;
+}
+
+.message p {
+    margin: 5px 0;
+    line-height: 1.5;
+}
+
+.message strong {
+    display: inline;
+    margin-right: 5px;
+}
+
+.user-message {
+    background-color: #fea500;
+    color: #fff;
+    margin-left: auto;
+    margin-right: 20px;
+}
+
+.bot-message {
+    background-color: #e9ecef;
+    color: #333;
+    margin-right: auto;
+    margin-left: 20px;
+}
+
+.input-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    padding: 0 20px;
+    gap: 10px;
+}
+
+.input-container {
+    display: flex !important;
+    align-items: center;
+    width: 100%;
+    max-width: 700px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    padding: 5px 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.developer-text {
+    font-size: 0.9rem;
+    color: rgb(0, 0, 0);
+    align-items: center;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.new-chat-btn {
+    width: 30px;
+    height: 30px;
+    background-image: url('/static/novo_chat.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.new-chat-btn:hover {
+    opacity: 0.8;
+}
+
+.message-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    font-family: sans-serif;
+    line-height: 1.5;
+    outline: none;
+    resize: none;
+    overflow-y: auto; /* Alterado para auto para evitar problemas no Edge */
+    min-height: 40px;
+    max-height: 120px;
+    box-sizing: border-box;
+    display: block !important;
+    visibility: visible !important;
+}
+
+.message-input:focus {
+    border: none;
+    outline: none;
+}
+
+.send-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px 10px;
+    color: #fea500;
+}
+
+.send-button:hover {
+    color: #fea500;
+}
+
+.custom-file-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1.2rem;
+    color: #fea500;
+}
+
+.custom-file-upload:hover {
+    color: #fea500;
+}
+
+.custom-file-upload i {
+    font-size: 1.2rem;
+}
+
+.config-header {
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+.config-header h1 {
+    font-size: 1.5rem;
+
+    font-weight: 600;
+    color: #333;
+}
+
+.config-content {
+    padding: 20px;
+    background-color: #fff;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.flash-messages {
+    margin-bottom: 20px;
+}
+
+.flash-messages p {
+    background-color: #e9ecef;
+    padding: 10px;
+    border-radius: 5px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: #f8f9fa;
+    color: #333;
+    outline: none;
+}
+
+.form-group input[type="file"] {
+    padding: 3px;
+}
+
+.config-content button {
+    width: 100%;
+    padding: 10px;
+    background-color: #fea500;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.config-content button:hover {
+    background-color: #fea500;
+}
+
+.config-content a {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #fea500;
+    text-decoration: none;
+}
+
+.config-content a:hover {
+    text-decoration: underline;
+}
+
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: #f5f5f5;
+        color: #333;
+    }
+
+    .sidebar {
+        background-color: #f5f5f5;
+        border-right: 1px solid #e0e0e0;
+    }
+
+    .sidebar-header {
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .new-chat-btn {
+        background-image: url('/static/novo_chat.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .new-chat-btn:hover {
+        opacity: 0.8;
+    }
+
+    .chat-item {
+        background-color: #e9ecef;
+        color: #333;
+    }
+
+    .chat-item:hover {
+        background-color: #d1d5db;
+    }
+
+    .main-content {
+        background-color: #f5f5f5;
+    }
+
+    .user-message {
+        background-color: #fffefe;
+        color: #141313;
+    }
+
+    .bot-message {
+        background-color: #d1d5d9;
+        color: #000000;
+    }
+
+    .input-container {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        display: flex !important;
+    }
+
+    .config-header {
+        background-color: #fff;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .config-header h1 {
+        color: #333;
+    }
+
+    .config-content {
+        background-color: #fff;
+    }
+
+    .flash-messages p {
+        background-color: #e9ecef;
+        color: #333;
+    }
+
+    .form-group label {
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group select {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        color: #333;
+    }
+
+    .config-content a {
+        color: #000000;
+    }
+}
+
+.spinner {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner-circle {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #000000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.form-group textarea:focus {
+    border-color: #000000;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+pre {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    overflow-x: auto;
+    margin: 5px 0;
+    position: relative;
+}
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+.message {
+    word-wrap: break-word;
+}
+
+.copy-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #000000;
+    font-size: 16px;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.copy-button:hover {
+    color: #fea500;
+}
+
+.copy-button i {
+    font-size: 16px;
+}
+
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+}
+
+.popup-content {
+    margin-bottom: 20px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.popup button {
+    padding: 10px 20px;
+    background-color: #fea500;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.popup button:hover {
+    background-color: #e69500;
+}

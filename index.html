@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Adicionado para compatibilidade com Edge -->
+    <title>Converse com o Têmis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img id="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo Têmis" class="sidebar-logo">
+                <div class="estude-text">Estude Direito</div>
+                <div class="email-text">Usuário</div>
+            </div>
+            <div class="sidebar-content">
+                <div class="chat-history">
+                    <div class="chat-item">D. Administrativo</div>
+                    <div class="chat-item">D. Penal</div>
+                    <div class="chat-item">P. Penal</div>
+                    <div class="chat-item">D. Cívil</div>
+                    <div class="chat-item">P. Cívil</div>
+                    <div class="chat-item">D. Consumidor</div>
+                    <div class="chat-item">D. Tributário</div>
+                </div>
+            </div>
+            <div class="melhosapp-text">O melhor app do Brasil</div>
+            <div class="sidebar-qr">
+                <img src="{{ url_for('static', filename='QR.png') }}" alt="QR Code" class="qr-image">
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="top-right-icons">
+                <a href="{{ url_for('download') }}" class="icon-link" title="Baixar Histórico">
+                    <i class="fas fa-download"></i>
+                </a>
+                <a href="#" id="config-link" class="icon-link" title="Configurações">
+                    <i class="fas fa-cog"></i>
+                </a>
+            </div>
+            <div class="spinner" id="spinner">
+                <div class="spinner-circle"></div>
+            </div>
+            <h1>
+                <img src="{{ url_for('static', filename='logo_2.png') }}" alt="Logo 2 Têmis" class="header-logo">
+                Converse com o Têmis
+            </h1>
+            <div class="chat-container" id="chat-container">
+                {% for message in messages %}
+                <div class="message {{ 'user-message' if message.type == 'human' else 'bot-message' }}">
+                    <strong>{{ "Você" if message.type == 'human' else "Têmis" }}:</strong> {{ message.content | safe }}
+                </div>
+                {% endfor %}
+            </div>
+            <form class="input-form" id="message-form">
+                <button type="button" class="new-chat-btn" id="new-chat-btn" title="Novo Chat"></button>
+                <div class="input-container">
+                    <label for="arquivo" class="custom-file-upload">
+                        <i class="fas fa-paperclip"></i>
+                    </label>
+                    <textarea name="mensagem" id="mensagem" rows="1"
+                        placeholder="Digite sua mensagem, uma URL ou 'listar'" class="message-input"></textarea>
+                    <input type="file" name="arquivo" id="arquivo" style="display: none;"
+                        accept=".txt,.csv,.pdf,.docx,.xls,.xlsx">
+                    <button type="submit" class="send-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+            <div class="developer-text">Desenvolvido por Gedison Stein</div>
+        </div>
+    </div>
+
+    <!-- Popup para exibir mensagens -->
+    <div class="popup-overlay" id="popup-overlay"></div>
+    <div class="popup" id="popup">
+        <div class="popup-content" id="popup-message"></div>
+        <button onclick="closePopup()">Fechar</button>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+        const configUrl = '/config';
+
+        function showPopup(message) {
+            const popup = document.getElementById('popup');
+            const popupMessage = document.getElementById('popup-message');
+            const popupOverlay = document.getElementById('popup-overlay');
+            popupMessage.textContent = message;
+            popup.style.display = 'block';
+            popupOverlay.style.display = 'block';
+        }
+
+        function closePopup() {
+            const popup = document.getElementById('popup');
+            const popupOverlay = document.getElementById('popup-overlay');
+            popup.style.display = 'none';
+            popupOverlay.style.display = 'none';
+        }
+
+        function showSpinner() {
+            document.getElementById('spinner').style.display = 'flex';
+            document.getElementById('chat-container').style.opacity = '0.5';
+        }
+
+        function hideSpinner() {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('chat-container').style.opacity = '1';
+        }
+
+        function addCopyButtonToCodeBlocks() {
+            const codeBlocks = document.querySelectorAll('pre');
+            codeBlocks.forEach(block => {
+                if (!block.querySelector('.copy-button')) {
+                    const code = block.querySelector('code');
+                    const button = document.createElement('button');
+                    button.className = 'copy-button';
+                    button.innerHTML = '<i class="fas fa-copy"></i>';
+                    button.addEventListener('click', () => {
+                        navigator.clipboard.writeText(code.innerText).then(() => {
+                            button.innerHTML = '<i class="fas fa-check"></i>';
+                            setTimeout(() => button.innerHTML = '<i class="fas fa-copy"></i>', 2000);
+                        });
+                    });
+                    block.appendChild(button);
+                }
+            });
+        }
+
+        function addMessageToChat(sender, content, type) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            const strong = document.createElement('strong');
+            strong.textContent = `${sender}: `;
+            messageDiv.appendChild(strong);
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = content;
+            messageDiv.appendChild(contentDiv);
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            addCopyButtonToCodeBlocks();
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            } else {
+                console.warn('Prism não carregou corretamente.');
+            }
+            if (typeof MathJax !== 'undefined') {
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, contentDiv]);
+            }
+        }
+
+        function isValidUrl(string) {
+            const urlPattern = /^(https?:\/\/)?([\w\d-]+\.)+[\w\d-]+(\/[\w\d-./?%&=]*)?$/i;
+            return urlPattern.test(string);
+        }
+
+        function ensureInputVisible() {
+            const mensagemInput = document.getElementById('mensagem');
+            const inputContainer = document.querySelector('.input-container');
+            if (mensagemInput) {
+                mensagemInput.style.display = 'block';
+                mensagemInput.style.visibility = 'visible';
+                mensagemInput.disabled = false;
+                mensagemInput.style.backgroundColor = '';
+                mensagemInput.style.border = '';
+                inputContainer.style.display = 'flex';
+            }
+        }
+
+        async function processFile(file) {
+            const extensao = file.name.split('.').pop().toLowerCase();
+            const MAX_FILE_SIZE = 50 * 1024 * 1024;
+            if (file.size > MAX_FILE_SIZE) throw new Error("O arquivo é muito grande. O limite é 50 MB.");
+            if (['txt', 'csv'].includes(extensao)) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = () => reject(new Error("Erro ao ler o arquivo."));
+                    reader.readAsText(file);
+                });
+            } else if (extensao === 'pdf') {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                let text = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    text += content.items.map(item => item.str).join(' ') + '\n';
+                }
+                return text;
+            } else if (extensao === 'docx') {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                return result.value;
+            } else if (['xls', 'xlsx'].includes(extensao)) {
+                const arrayBuffer = await file.arrayBuffer();
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                let text = '';
+                workbook.SheetNames.forEach(sheetName => {
+                    const sheet = workbook.Sheets[sheetName];
+                    text += XLSX.utils.sheet_to_csv(sheet) + '\n';
+                });
+                return text;
+            } else {
+                throw new Error("Tipo de arquivo não suportado.");
+            }
+        }
+
+        document.getElementById('arquivo').addEventListener('change', function () {
+            const mensagemInput = document.getElementById('mensagem');
+            if (this.files.length > 0) {
+                const fileName = this.files[0].name;
+                mensagemInput.value = `Arquivo selecionado: ${fileName}`;
+                mensagemInput.disabled = true;
+                mensagemInput.style.backgroundColor = '#f0f0f0';
+            } else {
+                mensagemInput.value = '';
+                mensagemInput.disabled = false;
+                mensagemInput.style.backgroundColor = '';
+            }
+        });
+
+        document.getElementById('mensagem').addEventListener('input', function () {
+            const mensagemInput = this;
+            const mensagem = mensagemInput.value.trim();
+            mensagemInput.style.border = isValidUrl(mensagem) ? '2px solid #007bff' : '';
+            mensagemInput.title = isValidUrl(mensagem) ? "URL detectada!" : '';
+            mensagemInput.style.height = 'auto';
+            mensagemInput.style.height = `${mensagemInput.scrollHeight}px`;
+            console.log('Altura ajustada:', mensagemInput.style.height); // Debug
+        });
+
+        document.getElementById('mensagem').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && e.shiftKey) {
+                e.preventDefault();
+                const mensagemInput = this;
+                const start = mensagemInput.selectionStart;
+                const end = mensagemInput.selectionEnd;
+                const value = mensagemInput.value;
+                mensagemInput.value = value.substring(0, start) + '\n' + value.substring(end);
+                mensagemInput.selectionStart = mensagemInput.selectionEnd = start + 1;
+                mensagemInput.style.height = 'auto';
+                mensagemInput.style.height = `${mensagemInput.scrollHeight}px`;
+            }
+        });
+
+        document.getElementById('message-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const mensagemInput = document.getElementById('mensagem');
+            let mensagem = mensagemInput.value.trim();
+            const arquivo = document.getElementById('arquivo').files[0];
+            if (!mensagem && !arquivo) return;
+
+            const emailText = document.querySelector('.email-text').textContent.trim();
+            if (emailText === 'Usuário' || emailText === '') {
+                showPopup("Por favor, clique na logo para verificar seu usuário.");
+                return;
+            }
+
+            showSpinner();
+            let fileContent = null;
+            let fileName = null;
+            if (arquivo) {
+                try {
+                    fileContent = await processFile(arquivo);
+                    fileName = arquivo.name;
+                    mensagem = `Carregar arquivo: ${fileName}`;
+                    addMessageToChat('Você', `Arquivo '${fileName}' enviado para análise.`, 'user');
+                } catch (error) {
+                    hideSpinner();
+                    addMessageToChat('Têmis', `Erro ao processar o arquivo: ${error.message}`, 'bot');
+                    document.getElementById('message-form').reset();
+                    mensagemInput.disabled = false;
+                    mensagemInput.style.backgroundColor = '';
+                    mensagemInput.style.border = '';
+                    ensureInputVisible();
+                    return;
+                }
+            }
+
+            if (mensagem && !mensagem.startsWith('Arquivo selecionado:')) {
+                if (isValidUrl(mensagem)) {
+                    addMessageToChat('Você', `URL '${mensagem}' enviada.`, 'user');
+                } else if (!arquivo) {
+                    addMessageToChat('Você', mensagem, 'user');
+                }
+            }
+
+            const formData = new FormData();
+            formData.append('mensagem', mensagem);
+            if (fileContent && fileName) {
+                formData.append('file_content', fileContent);
+                formData.append('file_name', fileName);
+            }
+
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    hideSpinner();
+                    if (data.bot_message) addMessageToChat('Têmis', data.bot_message, 'bot');
+                    document.getElementById('message-form').reset();
+                    mensagemInput.disabled = false;
+                    mensagemInput.style.backgroundColor = '';
+                    mensagemInput.style.border = '';
+                    mensagemInput.style.height = 'auto';
+                    ensureInputVisible();
+                })
+                .catch(error => {
+                    hideSpinner();
+                    addMessageToChat('Têmis', `Erro: ${error.message}`, 'bot');
+                    document.getElementById('message-form').reset();
+                    mensagemInput.disabled = false;
+                    mensagemInput.style.backgroundColor = '';
+                    mensagemInput.style.border = '';
+                    mensagemInput.style.height = 'auto';
+                    ensureInputVisible();
+                });
+        });
+
+        document.getElementById('new-chat-btn').addEventListener('click', function () {
+            fetch('/clear-memory', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('chat-container').innerHTML = '';
+                        document.getElementById('message-form').reset();
+                        const mensagemInput = document.getElementById('mensagem');
+                        mensagemInput.disabled = false;
+                        mensagemInput.style.backgroundColor = '';
+                        mensagemInput.style.border = '';
+                        mensagemInput.style.height = 'auto';
+                        ensureInputVisible();
+                    } else {
+                        addMessageToChat('Têmis', 'Erro ao iniciar nova conversa: ' + data.message, 'bot');
+                    }
+                });
+        });
+
+        document.getElementById('config-link').addEventListener('click', function (e) {
+            e.preventDefault();
+            const password = prompt('Digite a senha para acessar as configurações:');
+            if (password) {
+                const formData = new FormData();
+                formData.append('password', password);
+                fetch('/check-config-password', { method: 'POST', body: formData })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) window.location.href = configUrl;
+                        else addMessageToChat('Têmis', data.message, 'bot');
+                    });
+            }
+        });
+
+        document.querySelectorAll('.chat-item').forEach(item => {
+            item.addEventListener('click', function () {
+                const specialty = this.textContent.trim();
+                showSpinner();
+                document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+
+                const formData = new FormData();
+                formData.append('specialty', specialty);
+                fetch('/set-specialty', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        hideSpinner();
+                        if (data.success) {
+                            document.getElementById('chat-container').innerHTML = '';
+                            addMessageToChat('Têmis', data.message, 'bot');
+                        } else {
+                            addMessageToChat('Têmis', data.message, 'bot');
+                        }
+                    })
+                    .catch(error => {
+                        hideSpinner();
+                        addMessageToChat('Têmis', `Erro ao mudar especialidade: ${error.message}`, 'bot');
+                    });
+            });
+        });
+
+        document.getElementById('logo').addEventListener('click', function () {
+            const email = prompt('Insira o e-mail para fazer login:');
+            if (email) {
+                showSpinner();
+                const formData = new FormData();
+                formData.append('email', email);
+                fetch('/check-email', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        hideSpinner();
+                        showPopup(data.message);
+                        if (data.item_7 === 'IA') {
+                            localStorage.setItem('item_7', 'IA');
+                            document.querySelector('.email-text').textContent = email;
+                        }
+                    })
+                    .catch(error => {
+                        hideSpinner();
+                        showPopup(`Erro ao verificar o e-mail: ${error.message}`);
+                    });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            addCopyButtonToCodeBlocks();
+            ensureInputVisible();
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            }
+        });
+    </script>
+</body>
+</html>

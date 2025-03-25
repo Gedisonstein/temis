@@ -41,7 +41,7 @@ if not validators.url(API_USE):
     print(f"Erro: API_USE ({API_USE}) não é uma URL válida. Verifique o config.env.")
     API_USE = None
 
-# Configuração dos modelos com limites de max_tokens por provedor (sincronizado com config.html)
+# Configuração dos modelos com limites de max_tokens por provedor
 CONFIG_MODELOS = {
     'DeepSeek': {
         'modelos': ['deepseek-coder', 'deepseek-chat'],
