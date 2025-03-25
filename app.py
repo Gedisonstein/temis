@@ -211,37 +211,31 @@ def carrega_docx(caminho):
         return f"Erro ao carregar DOCX: {str(e)}"
 
 # Função para inicializar o modelo
-def inicializa_modelo(provedor, modelo, api_key, system_prompt=None):
-    if not api_key:
-        print(f"Erro: Nenhuma API Key fornecida para {provedor}.")
-        return None
-    data_atual = datetime.now().strftime("%d de %B de %Y")
-    system_message = f"{system_prompt if system_prompt else DEFAULT_SYSTEM_PROMPT} Hoje é {data_atual}."
-    try:
-        template = ChatPromptTemplate.from_messages([
-            ('system', system_message),
-            ('placeholder', '{chat_history}'),
-            ('user', '{input}')
-        ])
-        max_tokens_limit = CONFIG_MODELOS[provedor]['max_tokens_limit']
-        adjusted_max_tokens = min(MAX_TOKENS_PER_RESPONSE, max_tokens_limit)
-        if adjusted_max_tokens != MAX_TOKENS_PER_RESPONSE:
-            print(f"Aviso: MAX_TOKENS_PER_RESPONSE ajustado para {adjusted_max_tokens}.")
-        
-        if not app.config['chat_model'] or app.config.get('provedor') != provedor or app.config.get('modelo') != modelo:
-            chat = CONFIG_MODELOS[provedor]['chat'](
-                model=modelo,
-                api_key=api_key,
-                max_tokens=adjusted_max_tokens
-            )
-            app.config['chat_model'] = chat
-        chain = template | app.config['chat_model']
-        app.config['prompt_template'] = template
-        print(f"Modelo {provedor}/{modelo} configurado com max_tokens: {adjusted_max_tokens}")
-        return chain
-    except Exception as e:
-        print(f"Erro ao inicializar {provedor}/{modelo}: {str(e)}")
-        return None
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def inicializa_modelo_padrao():
+    provedor_padrao = 'DeepSeek'
+    modelo_padrao = 'deepseek-chat'
+    api_key_padrao = os.getenv('DEEPSEEK_API_KEY')
+    logger.info(f"Tentando inicializar {provedor_padrao}/{modelo_padrao}")
+    if api_key_padrao:
+        chain = inicializa_modelo(provedor_padrao, modelo_padrao, api_key_padrao)
+        if chain:
+            app.config['chain'] = chain
+            app.config['provedor'] = provedor_padrao
+            app.config['modelo'] = modelo_padrao
+            app.config['api_key'] = None
+            app.config['system_prompt'] = None
+            app.config['model_initialized'] = True
+            logger.info(f"Modelo {provedor_padrao}/{modelo_padrao} inicializado")
+        else:
+            app.config['model_initialized'] = False
+            logger.error("Falha ao inicializar o modelo")
+    else:
+        app.config['model_initialized'] = False
+        logger.error("Nenhuma API Key encontrada")
 
 # Rota para mudar a especialidade
 @app.route('/set-specialty', methods=['POST'])
