@@ -35,23 +35,26 @@ os.environ['USER_AGENT'] = 'AssistenteApp/1.0'
 # Carrega a senha de configuração
 CONFIG_PASSWORD = os.getenv('CONFIG_PASSWORD', '')  # Senha padrão
 
-# Carrega a api use de configuração
+# Carrega e valida a API_USE
 API_USE = os.getenv('API_USE')
+if not validators.url(API_USE):
+    print(f"Erro: API_USE ({API_USE}) não é uma URL válida. Verifique o config.env.")
+    API_USE = None
 
-# Configuração dos modelos com limites de max_tokens por provedor
+# Configuração dos modelos com limites de max_tokens por provedor (sincronizado com config.html)
 CONFIG_MODELOS = {
     'DeepSeek': {
-        'modelos': ['deepseek-reasoner', 'deepseek-chat'],
+        'modelos': ['deepseek-coder', 'deepseek-chat'],
         'chat': ChatDeepSeek,
         'max_tokens_limit': 8192
     },
     'OpenAI': {
-        'modelos': ['gpt-4o-mini', 'gpt-4o', 'o1-preview', 'o1-mini'],
+        'modelos': ['gpt-3.5-turbo', 'gpt-4'],
         'chat': ChatOpenAI,
         'max_tokens_limit': 4096
     },
     'Groq': {
-        'modelos': ['llama-3.1-70b-versatile', 'gemma2-9b-it', 'mixtral-8x7b-32768'],
+        'modelos': ['llama3-8b-8192', 'llama3-70b-8192', 'mixtral-8x7b-32768'],
         'chat': ChatGroq,
         'max_tokens_limit': 32768
     }
@@ -93,14 +96,18 @@ except ValueError:
     MAX_TOKENS_PER_RESPONSE = 500
     print("Erro: MAX_TOKENS_PER_RESPONSE inválido. Usando padrão (500).")
 
-# Inicializa memória e URLs
+# Inicializa memória
 MEMORIA = ConversationBufferMemory()
-JSON_URL = "http://fibermobile.com.br/temisai/listatemis.php"
-BASE_URL = 'http://fibermobile.com.br/temisai/'
 
 # Inicializa variáveis globais
 app.config['chat_model'] = None
 app.config['prompt_template'] = None
+
+# Verifica arquivos estáticos
+STATIC_FILES = ['logo.png', 'logo_2.png', 'QR.png', 'novo_chat.png']
+for static_file in STATIC_FILES:
+    if not os.path.exists(os.path.join(app.static_folder or 'static', static_file)):
+        print(f"Aviso: Arquivo estático '{static_file}' não encontrado no diretório 'static'.")
 
 # Função para formatar mensagens
 def formatar_mensagem(content):
@@ -108,19 +115,16 @@ def formatar_mensagem(content):
     formatted_content = ""
     inside_code_block = False
 
-    # Função auxiliar para detectar se um texto parece ser um script/código
     def is_code_block(text):
-        # Palavras-chave comuns que indicam código
         code_keywords = r'^(def|function|class|import|from|if|for|while|try|catch|\s*[\w]+\s*\()'
         lines = text.split('\n')
-        # Verifica se há indentação ou palavras-chave de código
         has_indentation = any(line.startswith(('    ', '\t')) for line in lines)
         has_code_keyword = any(re.match(code_keywords, line) for line in lines)
         return has_indentation or has_code_keyword
 
     for i, part in enumerate(parts):
         if inside_code_block:
-            if i < len(parts) - 1:  # Garante que há um fechamento de bloco de código
+            if i < len(parts) - 1:
                 code_content = part.strip()
                 if '\n' in code_content:
                     lang, code = code_content.split('\n', 1)
@@ -131,13 +135,10 @@ def formatar_mensagem(content):
                 code = code.replace('&', '&').replace('<', '<').replace('>', '>')
                 formatted_content += f"<pre><code class=\"language-{lang}\">{code}</code></pre>"
         else:
-            # Verifica se o texto parece ser um script/código
             if is_code_block(part):
-                # Trata como um bloco de código, mesmo sem "```"
                 code = part.replace('&', '&').replace('<', '<').replace('>', '>')
                 formatted_content += f"<pre><code>{code}</code></pre>"
             else:
-                # Processa como texto normal, procurando por HTML ou parágrafos
                 html_pattern = r'<!DOCTYPE\s+html>[\s\S]*?</html>|<html[\s\S]*?</html>|<!DOCTYPE\s+html>[\s\S]*|<html[\s\S]*'
                 matches = re.finditer(html_pattern, part, re.IGNORECASE)
                 last_pos = 0
@@ -160,7 +161,6 @@ def formatar_mensagem(content):
                         formatted_content += "".join(f"<p>{p.strip()}</p>" for p in paragraphs if p.strip())
         inside_code_block = not inside_code_block
 
-    # Caso não haja blocos de código e o conteúdo não tenha sido formatado ainda
     if not parts[1:] and formatted_content == "":
         if is_code_block(content):
             content = content.replace('&', '&').replace('<', '<').replace('>', '>')
@@ -185,12 +185,16 @@ def carrega_arquivos(entrada, is_file=False):
             if not validators.url(entrada):
                 raise ValueError("URL inválida.")
             response = requests.get(entrada)
+            response.raise_for_status()  # Levanta exceção para erros HTTP
             soup = BeautifulSoup(response.content, 'html.parser')
             documento = soup.get_text()
         return documento
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao carregar URL {entrada}: {str(e)}")
+        return f"Erro ao carregar o documento da URL: {str(e)}"
     except Exception as e:
-        print(f"Erro ao carregar: {str(e)}")
-        return "Erro ao carregar o documento."
+        print(f"Erro inesperado ao carregar: {str(e)}")
+        return f"Erro ao carregar o documento: {str(e)}"
 
 def carrega_pdf(caminho):
     try:
@@ -234,7 +238,6 @@ def inicializa_modelo(provedor, modelo, api_key, system_prompt=None):
             print(f"Aviso: MAX_TOKENS_PER_RESPONSE ajustado para {adjusted_max_tokens}.")
         
         if not app.config['chat_model'] or app.config.get('provedor') != provedor or app.config.get('modelo') != modelo:
-            print(f"Tentando inicializar {provedor}/{modelo} com API Key: {api_key[:5]}...")  # Log parcial da chave
             chat = CONFIG_MODELOS[provedor]['chat'](
                 model=modelo,
                 api_key=api_key,
@@ -281,22 +284,6 @@ def set_specialty():
 def index():
     global MEMORIA
     chain = app.config.get('chain')
-    files = app.config.get('files')
-
-    # Se o chain não estiver inicializado, tenta inicializar
-    if not chain:
-        provedor_padrao = 'DeepSeek'
-        modelo_padrao = 'deepseek-chat'
-        api_key_padrao = os.getenv('DEEPSEEK_API_KEY')
-        if api_key_padrao:
-            chain = inicializa_modelo(provedor_padrao, modelo_padrao, api_key_padrao)
-            if chain:
-                app.config['chain'] = chain
-                app.config['provedor'] = provedor_padrao
-                app.config['modelo'] = modelo_padrao
-                print("Modelo inicializado automaticamente na rota /.")
-            else:
-                print("Falha ao inicializar o modelo automaticamente na rota /.")
 
     if request.method == 'POST':
         mensagem = request.form.get('mensagem', '').strip()
@@ -323,9 +310,8 @@ def index():
                         bot_message = f"Documento da URL '{mensagem.split('/')[-1]}' carregado com sucesso!"
                         MEMORIA.chat_memory.add_ai_message(bot_message)
                 elif mensagem.lower() in ["listar", "lista"]:
-                    resposta = listar_arquivos_por_palavras_chave(files)
-                    MEMORIA.chat_memory.add_ai_message(resposta)
-                    bot_message = resposta
+                    bot_message = "Funcionalidade de listar arquivos não está disponível."
+                    MEMORIA.chat_memory.add_ai_message(bot_message)
                 else:
                     last_document_name = app.config.get('last_document_name')
                     last_document = app.config.get('last_document')
@@ -346,33 +332,27 @@ def index():
                         except Exception as e:
                             resposta = f"Erro ao analisar o documento '{last_document_name}': {str(e)}"
                     else:
-                        nome_arquivo = mensagem.strip().lower().replace('\u200b', '').replace('** | **', '')
-                        arquivo_existe = any(f['name'].lower().replace('\u200b', '') == nome_arquivo for f in files)
-                        if arquivo_existe:
-                            resultado = carregar_arquivo_por_nome(mensagem.replace('**', ''), files)
-                            resposta = resultado if resultado else "Erro ao carregar o arquivo."
-                        else:
-                            try:
-                                if last_document:
-                                    input_with_document = (
-                                        f"O seguinte documento foi carregado anteriormente:\n"
-                                        f"####\n"
-                                        f"{last_document}\n"
-                                        f"####\n"
-                                        f"Com base no documento acima (se relevante), responda à seguinte pergunta: {mensagem}"
-                                    )
-                                    resposta = chain.invoke({
-                                        'input': input_with_document,
-                                        'chat_history': MEMORIA.buffer_as_messages
-                                    }).content.replace('$', 'S')
-                                else:
-                                    resposta = chain.invoke({
-                                        'input': mensagem,
-                                        'chat_history': MEMORIA.buffer_as_messages
-                                    }).content.replace('$', 'S')
-                                resposta = formatar_mensagem(resposta)
-                            except Exception as e:
-                                resposta = f"Erro ao processar a mensagem: {str(e)}"
+                        try:
+                            if last_document:
+                                input_with_document = (
+                                    f"O seguinte documento foi carregado anteriormente:\n"
+                                    f"####\n"
+                                    f"{last_document}\n"
+                                    f"####\n"
+                                    f"Com base no documento acima (se relevante), responda à seguinte pergunta: {mensagem}"
+                                )
+                                resposta = chain.invoke({
+                                    'input': input_with_document,
+                                    'chat_history': MEMORIA.buffer_as_messages
+                                }).content.replace('$', 'S')
+                            else:
+                                resposta = chain.invoke({
+                                    'input': mensagem,
+                                    'chat_history': MEMORIA.buffer_as_messages
+                                }).content.replace('$', 'S')
+                            resposta = formatar_mensagem(resposta)
+                        except Exception as e:
+                            resposta = f"Erro ao processar a mensagem: {str(e)}"
                     MEMORIA.chat_memory.add_ai_message(resposta)
                     bot_message = resposta
             else:
@@ -399,8 +379,7 @@ def clear_memory():
         MEMORIA = ConversationBufferMemory()
         app.config['last_document'] = None
         app.config['last_document_name'] = None
-        app.config['system_prompt'] = DEFAULT_SYSTEM_PROMPT  # Redefine para o prompt padrão do config.env
-        # Reinicializa o modelo com o prompt padrão
+        app.config['system_prompt'] = DEFAULT_SYSTEM_PROMPT
         provedor = app.config.get('provedor', 'DeepSeek')
         modelo = app.config.get('modelo', 'deepseek-chat')
         api_key = app.config.get('api_key') or os.getenv(f'{provedor.upper()}_API_KEY')
@@ -477,60 +456,6 @@ def download():
         download_name="historico_conversa.txt"
     )
 
-# Funções auxiliares
-def list_json_files():
-    try:
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-        response = requests.get(JSON_URL, headers=headers, timeout=10)
-        data = response.json()
-        files = [{'name': f, 'url': f"{BASE_URL}{f}"} for f in data.get('arquivos', []) if not f.lower().endswith('.php')]
-        return files if files else []
-    except Exception as e:
-        print(f"Erro ao acessar {JSON_URL}: {str(e)}")
-        return []
-
-def listar_arquivos_por_palavras_chave(files):
-    if not files:
-        return "Não foi possível listar os arquivos."
-    resposta = "Lista de Arquivos:<br><br>"
-    arquivos_listados = [f"{f['name']}" for f in files]
-    return resposta + "<br>".join(arquivos_listados)
-
-def carregar_arquivo_por_nome(nome_arquivo, files):
-    chain = app.config.get('chain')
-    nome_arquivo = nome_arquivo.strip().lower().replace('\u200b', '').replace('**', '')
-    arquivo = next((f for f in files if f['name'].lower().replace('\u200b', '') == nome_arquivo), None)
-    if arquivo:
-        try:
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-            response = requests.get(arquivo['url'], headers=headers, timeout=10)
-            response.raise_for_status()
-            extensao = arquivo['name'].split('.')[-1].lower()
-            with tempfile.NamedTemporaryFile(suffix=f'.{extensao}', delete=False) as temp:
-                temp.write(response.content)
-                if extensao == 'pdf':
-                    documento = carrega_pdf(temp.name)
-                elif extensao == 'docx':
-                    documento = carrega_docx(temp.name)
-                elif extensao in ['txt', 'text']:
-                    documento = open(temp.name, 'r', encoding='utf-8').read()
-                elif extensao in ['xls', 'xlsx']:
-                    df = pd.read_excel(temp.name)
-                    documento = df.to_string(index=False)
-                elif extensao == 'csv':
-                    df = pd.read_csv(temp.name)
-                    documento = df.to_string(index=False)
-                else:
-                    os.unlink(temp.name)
-                    return f"Erro: Tipo de arquivo '{extensao}' não suportado."
-            os.unlink(temp.name)
-            app.config['last_document'] = documento
-            app.config['last_document_name'] = arquivo['name']
-            return f"Documento '{arquivo['name']}' carregado com sucesso!"
-        except requests.exceptions.RequestException as e:
-            return f"Erro: Não foi possível baixar o arquivo '{arquivo['name']}'."
-    return None
-
 # Rota para verificar o e-mail usando a API fornecida
 @app.route('/check-email', methods=['POST'])
 def check_email():
@@ -538,14 +463,11 @@ def check_email():
     if not email:
         return jsonify({'success': False, 'message': 'E-mail não fornecido.'}), 400
 
-    api_url = os.getenv('API_USE')
-    if not api_url:
-        return jsonify({'success': False, 'message': 'Erro: URL da API não configurada.'}), 500
+    if not API_USE:
+        return jsonify({'success': False, 'message': 'Erro: URL da API não configurada corretamente.'}), 500
 
     try:
-        response = requests.get(api_url, timeout=10)
-        print(f"Status da resposta: {response.status_code}")
-        print(f"Resposta bruta da API: {response.text}")
+        response = requests.get(API_USE, timeout=10)
         response.raise_for_status()
         data = response.json()
 
@@ -566,7 +488,6 @@ def check_email():
             return jsonify({'success': False, 'message': f'O e-mail {email} foi encontrado, mas o dicionário não contém a chave "{email_chave_dict}": {email_data.keys()}.'})
 
         value = email_data[email_chave_dict]
-        print(f"Valor de 'value' antes do json.loads: {value}")
         if not isinstance(value, str):
             return jsonify({'success': False, 'message': f'O valor da chave "{email_chave_dict}" não é uma string JSON: tipo {type(value)}.'})
 
@@ -584,7 +505,7 @@ def check_email():
         return jsonify({'success': True, 'message': f'O item 7 para o e-mail {email} é: "{item_7}".', 'item_7': item_7})
 
     except requests.exceptions.RequestException as e:
-        print(f"Erro ao acessar a API: {str(e)}")
+        print(f"Erro ao acessar a API {API_USE}: {str(e)}")
         return jsonify({'success': False, 'message': f'Erro ao verificar o e-mail {email}: problema ao acessar a API.'}), 500
 
 # Função para inicializar o modelo padrão
@@ -592,7 +513,6 @@ def inicializa_modelo_padrao():
     provedor_padrao = 'DeepSeek'
     modelo_padrao = 'deepseek-chat'
     api_key_padrao = os.getenv('DEEPSEEK_API_KEY')
-    print(f"DEEPSEEK_API_KEY carregada: {api_key_padrao}")  # Log da chave
     if api_key_padrao:
         chain = inicializa_modelo(provedor_padrao, modelo_padrao, api_key_padrao)
         if chain:
@@ -609,6 +529,5 @@ def inicializa_modelo_padrao():
 
 # Inicializa a aplicação
 if __name__ == '__main__':
-    app.config['files'] = list_json_files()
     inicializa_modelo_padrao()
     app.run(debug=True, host='0.0.0.0', port=5000)
