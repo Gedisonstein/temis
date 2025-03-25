@@ -18,6 +18,7 @@ import warnings
 from datetime import datetime
 import re
 import json
+import logging
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -27,6 +28,10 @@ app.secret_key = 'sua_chave_secreta_aqui'  # Altere para uma chave segura
 
 # Limite de tamanho das requisições (50 MB)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB
+
+# Configura logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Carrega variáveis de ambiente
 load_dotenv("config.env")
@@ -66,7 +71,7 @@ PROMPTS_ESPECIALIDADES = {
     "Direito Penal": """Você é um assistente virtual especializado em Direito Penal, com domínio da legislação penal brasileira, jurisprudência, doutrina e princípios do direito criminal. Responda com precisão sobre crimes, penas, processos penais, medidas cautelares, execução penal e garantias constitucionais, citando sempre o Código Penal, a Constituição e decisões relevantes do STF e STJ. Ao responder, sempre cite a base legal (leis, decretos, súmulas, etc.) e, quando possível, referencie jurisprudências relevantes do STF (Supremo Tribunal Federal) e do STJ (Superior Tribunal de Justiça). Se necessário, explique conceitos de forma didática para facilitar a compreensão de leigos. Além disso, esteja preparado para: analisar casos concretos e sugerir possíveis soluções com base na legislação vigente; esclarecer dúvidas sobre legislação, prazos, procedimentos e recursos; fornecer modelos de petições, recursos ou documentos, quando solicitado. Sua linguagem deve ser formal, técnica e precisa, mas adaptável ao nível de conhecimento do usuário. Caso a pergunta não esteja relacionada a tema jurídico, informe que sua especialidade é nessa área e sugira buscar orientação em outra fonte.""",
     "Processo Penal": """Você é um assistente virtual especializado em Processo Penal, com expertise no Código de Processo Penal brasileiro. Forneça informações detalhadas sobre fases do processo, recursos, prazos, provas, audiências e direitos processuais, baseando-se em leis e jurisprudências do STF e STJ. Ao responder, sempre cite a base legal (leis, decretos, súmulas, etc.) e, quando possível, referencie jurisprudências relevantes do STF (Supremo Tribunal Federal) e do STJ (Superior Tribunal de Justiça). Se necessário, explique conceitos de forma didática para facilitar a compreensão de leigos. Além disso, esteja preparado para: analisar casos concretos e sugerir possíveis soluções com base na legislação vigente; esclarecer dúvidas sobre legislação, prazos, procedimentos e recursos; fornecer modelos de petições, recursos ou documentos, quando solicitado. Sua linguagem deve ser formal, técnica e precisa, mas adaptável ao nível de conhecimento do usuário. Caso a pergunta não esteja relacionada a tema jurídico, informe que sua especialidade é nessa área e sugira buscar orientação em outra fonte.""",
     "Direito Civil": """Você é um assistente virtual especializado em Direito Civil, com conhecimento profundo do Código Civil brasileiro, contratos, responsabilidade civil, direitos reais, família e sucessões. Responda com base legal e jurisprudencial, adaptando-se ao público. Ao responder, sempre cite a base legal (leis, decretos, súmulas, etc.) e, quando possível, referencie jurisprudências relevantes do STF (Supremo Tribunal Federal) e do STJ (Superior Tribunal de Justiça). Se necessário, explique conceitos de forma didática para facilitar a compreensão de leigos. Além disso, esteja preparado para: analisar casos concretos e sugerir possíveis soluções com base na legislação vigente; esclarecer dúvidas sobre legislação, prazos, procedimentos e recursos; fornecer modelos de petições, recursos ou documentos, quando solicitado. Sua linguagem deve ser formal, técnica e precisa, mas adaptável ao nível de conhecimento do usuário. Caso a pergunta não esteja relacionada a tema jurídico, informe que sua especialidade é nessa área e sugira buscar orientação em outra fonte.""",
-    "Processo Civil": """Você é um assistente virtual especializado em Processo Civil, com domínio do Código de Processo Civil brasileiro. Oriente sobre procedimentos, prazos, recursos, petições e execução, citando leis e jurisprudências relevantes. Ao responder, sempre cite a base legal (leis, decretos, súmulas, etc.) e, quando possível, referencie jurisprudências relevantes do STF (Supremo Tribunal Federal) e do STJ (Superior Tribunal de Justiça). Se necessário, explique conceitos de forma didática para facilitar a compreensão de leigos. Além disso, esteja preparado para: analisar casos concretos e sugerir possíveis soluções com base na legislação vigente; esclarecer dúvidas sobre legislação, prazos, procedimentos e recursos; fornecer modelos de petições, recursos ou documentos, quando solicitado. Sua linguagem deve ser formal, técnica e precisa, mas adaptável ao nível de conhecimento do usuário. Caso a pergunta não esteja relacionada a tema jurídico, informe que sua especialidade é nessa área e sugira buscar orientação em outra fonte.""",
+    "Processo Civil": """Você é um assistente virtual especializado em Processo Civil, com domínio do Código de Processo Civil brasileiro. Oriente sobre procedimentos, prazos, recursos, petições e execução, citando leis e jurisprudências relevantes. Ao responder, sempre cite a base legal (leis, decretos, súmulas, etc.) e, quando possível, referencie jurisprudências relevantes do STF (Supremo Tribunal Federal) e do STJ (Superior Tribunal de Justiça). Se necessário, explique conceitos de forma didática para facilitar a compreensão de leigos. Além disso, esteja preparado para: analisar casos concretos e sugerir possíveis soluções com base na legislação vigente; esclarecer dúvidas sobre legislação, prazos, procedimentos e recursos; fornecer modelos de petições, recursos ou documentos, quando solicitado. Sua linguagem deve be formal, técnica e precisa, mas adaptável ao nível de conhecimento do usuário. Caso a pergunta não esteja relacionada a tema jurídico, informe que sua especialidade é nessa área e sugira buscar orientação em outra fonte.""",
     "Direito Consumidor": """Você é um assistente virtual especializado em Direito do Consumidor, com base no Código de Defesa do Consumidor (CDC). Responda sobre relações de consumo, direitos do consumidor, contratos, práticas abusivas e ações judiciais, citando o CDC e jurisprudências. Ao responder, sempre cite a base legal (leis, decretos, súmulas, etc.) e, quando possível, referencie jurisprudências relevantes do STF (Supremo Tribunal Federal) e do STJ (Superior Tribunal de Justiça). Se necessário, explique conceitos de forma didática para facilitar a compreensão de leigos. Além disso, esteja preparado para: analisar casos concretos e sugerir possíveis soluções com base na legislação vigente; esclarecer dúvidas sobre legislação, prazos, procedimentos e recursos; fornecer modelos de petições, recursos ou documentos, quando solicitado. Sua linguagem deve ser formal, técnica e precisa, mas adaptável ao nível de conhecimento do usuário. Caso a pergunta não esteja relacionada a tema jurídico, informe que sua especialidade é nessa área e sugira buscar orientação em outra fonte.""",
     "Direito Tributário": """Você é um assistente virtual especializado em Direito Tributário, com conhecimento em tributos, impostos, taxas, contribuições e processos fiscais no Brasil. Baseie-se no Código Tributário Nacional, leis específicas e decisões do STF e STJ. Ao responder, sempre cite a base legal (leis, decretos, súmulas, etc.) e, quando possível, referencie jurisprudências relevantes do STF (Supremo Tribunal Federal) e do STJ (Superior Tribunal de Justiça). Se necessário, explique conceitos de forma didática para facilitar a compreensão de leigos. Além disso, esteja preparado para: analisar casos concretos e sugerir possíveis soluções com base na legislação vigente; esclarecer dúvidas sobre legislação, prazos, procedimentos e recursos; fornecer modelos de petições, recursos ou documentos, quando solicitado. Sua linguagem deve ser formal, técnica e precisa, mas adaptável ao nível de conhecimento do usuário. Caso a pergunta não esteja relacionada a tema jurídico, informe que sua especialidade é nessa área e sugira buscar orientação em outra fonte."""
 }
@@ -85,9 +90,6 @@ try:
 except ValueError:
     MAX_TOKENS_PER_RESPONSE = 500
     print("Erro: MAX_TOKENS_PER_RESPONSE inválido. Usando padrão (500).")
-
-# Inicializa memória
-MEMORIA = ConversationBufferMemory()
 
 # Inicializa variáveis globais
 app.config['chat_model'] = None
@@ -123,11 +125,11 @@ def formatar_mensagem(content):
                 else:
                     lang = ''
                     code = code_content
-                code = code.replace('&', '&').replace('<', '<').replace('>', '>')
+                code = code.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
                 formatted_content += f"<pre><code class=\"language-{lang}\">{code}</code></pre>"
         else:
             if is_code_block(part):
-                code = part.replace('&', '&').replace('<', '<').replace('>', '>')
+                code = part.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
                 formatted_content += f"<pre><code>{code}</code></pre>"
             else:
                 html_pattern = r'<!DOCTYPE\s+html>[\s\S]*?</html>|<html[\s\S]*?</html>|<!DOCTYPE\s+html>[\s\S]*|<html[\s\S]*'
@@ -139,13 +141,13 @@ def formatar_mensagem(content):
                     if before_text:
                         paragraphs = before_text.split('\n')
                         formatted_content += "".join(f"<p>{p.strip()}</p>" for p in paragraphs if p.strip())
-                    html_code = match.group(0).replace('&', '&').replace('<', '<').replace('>', '>')
+                    html_code = match.group(0).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
                     formatted_content += f"<pre><code class=\"language-html\">{html_code}</code></pre>"
                     last_pos = end
                 remaining_text = part[last_pos:].strip()
                 if remaining_text:
                     if is_code_block(remaining_text):
-                        code = remaining_text.replace('&', '&').replace('<', '<').replace('>', '>')
+                        code = remaining_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
                         formatted_content += f"<pre><code>{code}</code></pre>"
                     else:
                         paragraphs = remaining_text.split('\n')
@@ -154,12 +156,12 @@ def formatar_mensagem(content):
 
     if not parts[1:] and formatted_content == "":
         if is_code_block(content):
-            content = content.replace('&', '&').replace('<', '<').replace('>', '>')
+            content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
             formatted_content = f"<pre><code>{content}</code></pre>"
         else:
             html_pattern = r'<!DOCTYPE\s+html>[\s\S]*|<\s*html[\s\S]*'
             if re.match(html_pattern, content.strip(), re.IGNORECASE):
-                content = content.replace('&', '&').replace('<', '<').replace('>', '>')
+                content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
                 formatted_content = f"<pre><code class=\"language-html\">{content}</code></pre>"
             else:
                 paragraphs = content.split('\n')
@@ -210,11 +212,7 @@ def carrega_docx(caminho):
         print(f"Erro ao carregar DOCX: {str(e)}")
         return f"Erro ao carregar DOCX: {str(e)}"
 
-# Função para inicializar o modelos
-import logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+# Função para inicializar os modelos
 def inicializa_modelo(provedor, modelo, api_key, system_prompt=None):
     logger.info(f"Tentando inicializar {provedor}/{modelo}")
     if not api_key:
@@ -269,14 +267,14 @@ def inicializa_modelo_padrao():
 # Rota para mudar a especialidade
 @app.route('/set-specialty', methods=['POST'])
 def set_specialty():
-    global MEMORIA
     specialty = request.form.get('specialty')
     if specialty not in PROMPTS_ESPECIALIDADES:
         return jsonify({'success': False, 'message': 'Especialidade inválida.'}), 400
 
-    MEMORIA = ConversationBufferMemory()
-    app.config['last_document'] = None
-    app.config['last_document_name'] = None
+    # Reseta a sessão do usuário
+    session['chat_memory'] = []
+    session['last_document'] = None
+    session['last_document_name'] = None
 
     system_prompt = PROMPTS_ESPECIALIDADES[specialty]
     provedor = app.config.get('provedor', 'DeepSeek')
@@ -288,7 +286,8 @@ def set_specialty():
         app.config['chain'] = chain
         app.config['system_prompt'] = system_prompt
         intro_message = f"Oi! Sou especialista em {specialty}. Como posso ajudá-lo hoje?"
-        MEMORIA.chat_memory.add_ai_message(intro_message)
+        session['chat_memory'].append({'type': 'ai', 'content': intro_message})
+        session.modified = True
         return jsonify({'success': True, 'message': intro_message})
     else:
         return jsonify({'success': False, 'message': 'Erro ao configurar a especialidade.'}), 500
@@ -296,7 +295,21 @@ def set_specialty():
 # Rota principal
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    global MEMORIA
+    # Inicializa a memória da sessão se não existir
+    if 'chat_memory' not in session:
+        session['chat_memory'] = []
+        session['last_document'] = None
+        session['last_document_name'] = None
+        chain = app.config.get('chain')
+        if chain:
+            system_prompt = app.config.get('system_prompt', '')
+            if system_prompt:
+                intro_message = f"Olá! {system_prompt} Como posso ajudar você hoje?"
+            else:
+                intro_message = f"Olá! Eu sou Têmis, um assistente inteligente e útil. Como posso ajudar você hoje?"
+            session['chat_memory'].append({'type': 'ai', 'content': intro_message})
+        session.modified = True
+
     chain = app.config.get('chain')
 
     if request.method == 'POST':
@@ -306,29 +319,29 @@ def index():
         bot_message = None
 
         if mensagem:
-            MEMORIA.chat_memory.add_user_message(mensagem)
+            session['chat_memory'].append({'type': 'human', 'content': mensagem})
             if chain:
                 if mensagem.startswith("Carregar arquivo:") and file_content and file_name:
-                    app.config['last_document'] = file_content
-                    app.config['last_document_name'] = file_name
+                    session['last_document'] = file_content
+                    session['last_document_name'] = file_name
                     bot_message = f"Arquivo '{file_name}' carregado com sucesso!"
-                    MEMORIA.chat_memory.add_ai_message(bot_message)
+                    session['chat_memory'].append({'type': 'ai', 'content': bot_message})
                 elif validators.url(mensagem):
                     documento = carrega_arquivos(mensagem, is_file=False)
                     if "Erro" in documento:
                         bot_message = documento
-                        MEMORIA.chat_memory.add_ai_message(bot_message)
+                        session['chat_memory'].append({'type': 'ai', 'content': bot_message})
                     else:
-                        app.config['last_document'] = documento
-                        app.config['last_document_name'] = mensagem.split('/')[-1]
+                        session['last_document'] = documento
+                        session['last_document_name'] = mensagem.split('/')[-1]
                         bot_message = f"Documento da URL '{mensagem.split('/')[-1]}' carregado com sucesso!"
-                        MEMORIA.chat_memory.add_ai_message(bot_message)
+                        session['chat_memory'].append({'type': 'ai', 'content': bot_message})
                 elif mensagem.lower() in ["listar", "lista"]:
                     bot_message = "Funcionalidade de listar arquivos não está disponível."
-                    MEMORIA.chat_memory.add_ai_message(bot_message)
+                    session['chat_memory'].append({'type': 'ai', 'content': bot_message})
                 else:
-                    last_document_name = app.config.get('last_document_name')
-                    last_document = app.config.get('last_document')
+                    last_document_name = session.get('last_document_name')
+                    last_document = session.get('last_document')
                     if last_document and ("analise o arquivo" in mensagem.lower() or "analise o documento" in mensagem.lower() or "sobre o arquivo" in mensagem.lower() or "sobre o documento" in mensagem.lower()):
                         try:
                             input_with_document = (
@@ -340,7 +353,7 @@ def index():
                             )
                             resposta = chain.invoke({
                                 'input': input_with_document,
-                                'chat_history': MEMORIA.buffer_as_messages
+                                'chat_history': [msg for msg in session['chat_memory']]
                             }).content.replace('$', 'S')
                             resposta = formatar_mensagem(resposta)
                         except Exception as e:
@@ -357,42 +370,35 @@ def index():
                                 )
                                 resposta = chain.invoke({
                                     'input': input_with_document,
-                                    'chat_history': MEMORIA.buffer_as_messages
+                                    'chat_history': [msg for msg in session['chat_memory']]
                                 }).content.replace('$', 'S')
                             else:
                                 resposta = chain.invoke({
                                     'input': mensagem,
-                                    'chat_history': MEMORIA.buffer_as_messages
+                                    'chat_history': [msg for msg in session['chat_memory']]
                                 }).content.replace('$', 'S')
                             resposta = formatar_mensagem(resposta)
                         except Exception as e:
                             resposta = f"Erro ao processar a mensagem: {str(e)}"
-                    MEMORIA.chat_memory.add_ai_message(resposta)
+                    session['chat_memory'].append({'type': 'ai', 'content': resposta})
                     bot_message = resposta
             else:
                 bot_message = "Modelo não inicializado. Configure na página de configurações."
+            session.modified = True
 
         if bot_message is None:
             bot_message = "Nenhuma ação realizada."
         return jsonify({'bot_message': bot_message})
 
-    if not MEMORIA.buffer_as_messages:
-        system_prompt = app.config.get('system_prompt', '')
-        if system_prompt:
-            intro_message = f"Olá! {system_prompt} Como posso ajudar você hoje?"
-        else:
-            intro_message = f"Olá! Eu sou Têmis, um assistente inteligente e útil. Como posso ajudar você hoje?"
-        MEMORIA.chat_memory.add_ai_message(intro_message)
-    return render_template('index.html', messages=MEMORIA.buffer_as_messages)
+    return render_template('index.html', messages=session['chat_memory'])
 
 # Rota para limpar a memória
 @app.route('/clear-memory', methods=['POST'])
 def clear_memory():
-    global MEMORIA
     try:
-        MEMORIA = ConversationBufferMemory()
-        app.config['last_document'] = None
-        app.config['last_document_name'] = None
+        session['chat_memory'] = []
+        session['last_document'] = None
+        session['last_document_name'] = None
         app.config['system_prompt'] = DEFAULT_SYSTEM_PROMPT
         provedor = app.config.get('provedor', 'DeepSeek')
         modelo = app.config.get('modelo', 'deepseek-chat')
@@ -400,6 +406,9 @@ def clear_memory():
         chain = inicializa_modelo(provedor, modelo, api_key, DEFAULT_SYSTEM_PROMPT)
         if chain:
             app.config['chain'] = chain
+            intro_message = f"Olá! {DEFAULT_SYSTEM_PROMPT} Como posso ajudar você hoje?"
+            session['chat_memory'].append({'type': 'ai', 'content': intro_message})
+        session.modified = True
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -463,7 +472,7 @@ def config():
 # Rota para baixar o histórico
 @app.route('/download')
 def download():
-    historico = "\n".join([f"{msg.type}: {msg.content}" for msg in MEMORIA.buffer_as_messages])
+    historico = "\n".join([f"{msg['type']}: {msg['content']}" for msg in session.get('chat_memory', [])])
     return send_file(
         io.BytesIO(historico.encode('utf-8')),
         as_attachment=True,
@@ -527,30 +536,7 @@ def check_email():
 def check_model_status():
     return jsonify({'initialized': app.config['model_initialized']})
 
-# Função para inicializar o modelo padrão
-def inicializa_modelo_padrao():
-    provedor_padrao = 'DeepSeek'
-    modelo_padrao = 'deepseek-chat'
-    api_key_padrao = os.getenv('DEEPSEEK_API_KEY')
-    if api_key_padrao:
-        chain = inicializa_modelo(provedor_padrao, modelo_padrao, api_key_padrao)
-        if chain:
-            app.config['chain'] = chain
-            app.config['provedor'] = provedor_padrao
-            app.config['modelo'] = modelo_padrao
-            app.config['api_key'] = None
-            app.config['system_prompt'] = None
-            app.config['model_initialized'] = True  # Marca como inicializado
-            print(f"Modelo padrão {provedor_padrao}/{modelo_padrao} inicializado.")
-        else:
-            app.config['model_initialized'] = False
-            print("Falha ao inicializar o modelo padrão.")
-    else:
-        app.config['model_initialized'] = False
-        print("Nenhuma API Key padrão encontrada.")
-
 # Inicializa a aplicação
-
 inicializa_modelo_padrao()  # Chama a inicialização sempre que o app é carregado
 
 if __name__ == '__main__':
