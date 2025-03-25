@@ -21,7 +21,7 @@ body {
 
 .sidebar {
     width: 260px;
-    background-color: #202123;
+    background-color: #f5f5f5;
     color: #d1d5db;
     display: flex;
     flex-direction: column;
@@ -175,15 +175,15 @@ h1 {
 }
 
 .user-message {
-    background-color: #fea500;
-    color: #fff;
+    background-color: #fffffe;
+    color: #000000;
     margin-left: auto;
     margin-right: 20px;
 }
 
 .bot-message {
-    background-color: #e9ecef;
-    color: #333;
+    background-color: #d8d9da;
+    color: #000000;
     margin-right: auto;
     margin-left: 20px;
 }
@@ -264,7 +264,7 @@ h1 {
     cursor: pointer;
     font-size: 18px;
     padding: 5px 10px;
-    color: #fea500;
+    color: #000000;
 }
 
 .send-button:hover {
@@ -278,7 +278,7 @@ h1 {
     cursor: pointer;
     padding: 5px;
     font-size: 1.2rem;
-    color: #fea500;
+    color: #000000;
 }
 
 .custom-file-upload:hover {
@@ -586,7 +586,7 @@ code {
 
 .popup button {
     padding: 10px 20px;
-    background-color: #fea500;
+    background-color: #000000;
     color: #fff;
     border: none;
     border-radius: 5px;
