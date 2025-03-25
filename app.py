@@ -502,11 +502,11 @@ def check_email():
             return jsonify({'success': False, 'message': f'A sublista para o e-mail {email} tem menos de 7 elementos: {len(sublist)} elementos.'})
 
         item_7 = sublist[6]
-        return jsonify({'success': True, 'message': f'O item 7 para o e-mail {email} é: "{item_7}".', 'item_7': item_7})
+        return jsonify({'success': True, 'message': f'Usuário {email} está autorizado.', 'item_7': item_7})
 
     except requests.exceptions.RequestException as e:
         print(f"Erro ao acessar a API {API_USE}: {str(e)}")
-        return jsonify({'success': False, 'message': f'Erro ao verificar o e-mail {email}: problema ao acessar a API.'}), 500
+        return jsonify({'success': False, 'message': f'Erro ao verificar o usuário {email} '}), 500
 
 # Função para inicializar o modelo padrão
 def inicializa_modelo_padrao():
