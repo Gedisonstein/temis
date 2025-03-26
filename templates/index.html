@@ -19,6 +19,9 @@
 <body>
     <div class="app-container">
         <div class="sidebar">
+            
+            <button class="close-btn" onclick="toggleSidebar()">✖</button>
+           
             <div class="sidebar-header">
                 <img id="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo Têmis" class="sidebar-logo">
                 <div class="estude-text">Estude Direito</div>
@@ -41,7 +44,9 @@
             </div>
         </div>
         <div class="main-content">
+            
             <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+            
             <div class="top-right-icons">
 
                 <div class="email-text">Usuário</div>
