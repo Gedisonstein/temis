@@ -43,27 +43,20 @@
                 <img src="{{ url_for('static', filename='QR.png') }}" alt="QR Code" class="qr-image">
             </div>
         </div>
-        <div class="main-content">
-            
-            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-            
-            <div class="top-right-icons">
-
-                <div class="email-text">Usuário</div>
-
-                
-                <a href="#" id="login" onclick="document.getElementById('login-modal').style.display='block'" class="icon-link"
-                    title="Fazer Login">
-                    <i class="fas fa-user"></i>
-                </a>
-
-                <a href="{{ url_for('download') }}" class="icon-link" title="Baixar Histórico">
-                    <i class="fas fa-download"></i>
-                </a>
-                <a href="#" id="config-link" class="icon-link" title="Configurações">
-                    <i class="fas fa-cog"></i>
-                </a>
-            </div>
+       <div class="main-content">
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="top-right-icons">
+        <a href="#" id="login" onclick="document.getElementById('login-modal').style.display='block'" class="icon-link" title="Fazer Login">
+            <i class="fas fa-user"></i>
+        </a>
+        <a href="{{ url_for('download') }}" class="icon-link" title="Baixar Histórico">
+            <i class="fas fa-download"></i>
+        </a>
+        <a href="#" id="config-link" class="icon-link" title="Configurações">
+            <i class="fas fa-cog"></i>
+        </a>
+    </div>
+    <div class="email-text">Usuário</div> <!-- Mov
             <div class="spinner" id="spinner">
                 <div class="spinner-circle"></div>
             </div>
