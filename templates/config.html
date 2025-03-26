@@ -125,29 +125,31 @@
         });
 
         document.querySelectorAll('.chat-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const specialty = this.textContent.trim();
-                const formData = new FormData();
-                formData.append('specialty', specialty);
+    item.addEventListener('click', function() {
+        const specialty = this.textContent.trim();
+        const formData = new FormData();
+        formData.append('specialty', specialty);
 
-                fetch('/set-specialty', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = '/';
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao mudar especialidade:', error);
-                });
-            });
+        fetch('/set-specialty', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                window.location.href = '/';
+                // Fecha a barra lateral automaticamente (caso a redireção falhe)
+                document.querySelector('.sidebar').classList.remove('active');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao mudar especialidade:', error);
         });
+    });
+});
 
         document.getElementById('config-link').addEventListener('click', function(e) {
             e.preventDefault();
