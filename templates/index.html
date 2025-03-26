@@ -385,37 +385,39 @@
         });
 
         document.querySelectorAll('.chat-item').forEach(item => {
-            item.addEventListener('click', function () {
-                const specialty = this.textContent.trim();
-                showSpinner();
-                document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
+    item.addEventListener('click', function () {
+        const specialty = this.textContent.trim();
+        showSpinner();
+        document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
 
-                const formData = new FormData();
-                formData.append('specialty', specialty);
-                fetch('/set-specialty', {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(response => {
-                        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
-                        return response.json();
-                    })
-                    .then(data => {
-                        hideSpinner();
-                        if (data.success) {
-                            document.getElementById('chat-container').innerHTML = '';
-                            addMessageToChat('Têmis', data.message, 'bot');
-                        } else {
-                            addMessageToChat('Têmis', data.message, 'bot');
-                        }
-                    })
-                    .catch(error => {
-                        hideSpinner();
-                        addMessageToChat('Têmis', `Erro ao mudar especialidade: ${error.message}`, 'bot');
-                    });
+        const formData = new FormData();
+        formData.append('specialty', specialty);
+        fetch('/set-specialty', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                hideSpinner();
+                if (data.success) {
+                    document.getElementById('chat-container').innerHTML = '';
+                    addMessageToChat('Têmis', data.message, 'bot');
+                    // Fecha a barra lateral automaticamente
+                    document.querySelector('.sidebar').classList.remove('active');
+                } else {
+                    addMessageToChat('Têmis', data.message, 'bot');
+                }
+            })
+            .catch(error => {
+                hideSpinner();
+                addMessageToChat('Têmis', `Erro ao mudar especialidade: ${error.message}`, 'bot');
             });
-        });
+    });
+});
 
         document.getElementById('login').addEventListener('click', function () {
             const email = prompt('Insira o e-mail para fazer login:');
