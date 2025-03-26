@@ -736,33 +736,7 @@ code {
         padding: 8px;
         font-size: 0.9rem;
     }
-}
 
-@media (max-width: 480px) {
-    .chat-item {
-        padding: 8px;
-        font-size: 0.85rem;
-    }
-
-    .message {
-        font-size: 0.8rem;
-    }
-
-    .input-container {
-        padding: 3px;
-    }
-
-    .message-input {
-        font-size: 12px;
-        padding: 8px;
-    }
-
-    .developer-text {
-        font-size: 0.8rem;
-    }
-
-    /* Adicione ou ajuste estas regras no final do CSS, dentro da media query */
-@media (max-width: 768px) {
     .sidebar {
         position: fixed;
         left: -100%;
@@ -793,4 +767,34 @@ code {
         display: block; /* Mostra quando a sidebar está ativa */
     }
 }
+
+@media (max-width: 480px) {
+    .chat-item {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    .message {
+        font-size: 0.8rem;
+    }
+
+    .input-container {
+        padding: 3px;
+    }
+
+    .message-input {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .developer-text {
+        font-size: 0.8rem;
+    }
+}
+
+/* Regra para ocultar o botão de fechar em telas maiores (computadores) */
+@media (min-width: 769px) {
+    .close-btn {
+        display: none !important;
+    }
 }
