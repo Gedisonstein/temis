@@ -12,6 +12,9 @@
 <body>
     <div class="app-container">
         <div class="sidebar">
+            
+            <button class="close-btn" onclick="toggleSidebar()">✖</button>
+            
             <div class="sidebar-header">
                 <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo Têmis" class="sidebar-logo">
             </div>
@@ -160,6 +163,10 @@
                 });
             }
         });
+
+        function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('active');
+}
     </script>
 </body>
 </html>
