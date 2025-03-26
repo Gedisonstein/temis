@@ -10,7 +10,7 @@ body {
     color: #333;
     display: flex;
     height: 100vh;
-    overflow-x: hidden; /* Evita rolagem horizontal */
+    overflow-x: hidden;
 }
 
 .app-container {
@@ -26,7 +26,7 @@ body {
     display: flex;
     flex-direction: column;
     border-right: 1px solid #343541;
-    transition: left 0.3s ease; /* Para o menu retrátil */
+    transition: left 0.3s ease;
 }
 
 .sidebar-header {
@@ -52,6 +52,11 @@ body {
     font-size: 0.8rem;
     color: rgb(0, 0, 0);
     margin-top: 5px;
+    text-align: right;
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    width: auto;
 }
 
 .sidebar-content {
@@ -117,7 +122,7 @@ body {
 }
 
 .menu-btn {
-    display: none; /* Escondido por padrão */
+    display: none;
     position: absolute;
     top: 10px;
     left: 10px;
@@ -128,12 +133,29 @@ body {
     color: #000000;
 }
 
+.close-btn {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #000000;
+}
+
+.sidebar.active .close-btn {
+    display: block;
+}
+
 .top-right-icons {
     position: absolute;
     top: 20px;
     right: 20px;
     display: flex;
     gap: 15px;
+    z-index: 1;
 }
 
 .icon-link {
@@ -613,17 +635,17 @@ code {
 /* Media Queries para Responsividade */
 @media (max-width: 768px) {
     .app-container {
-        flex-direction: column; /* Empilha sidebar e main-content */
+        flex-direction: column;
         height: auto;
     }
 
     .menu-btn {
-        display: block; /* Mostra o botão de menu */
+        display: block;
     }
 
     .sidebar {
         position: fixed;
-        left: -100%; /* Escondido por padrão */
+        left: -100%;
         width: 80%;
         height: 100%;
         z-index: 1000;
@@ -632,11 +654,11 @@ code {
     }
 
     .sidebar.active {
-        left: 0; /* Mostra quando ativo */
+        left: 0;
     }
 
     .sidebar-content {
-        max-height: 50vh; /* Limita altura do histórico */
+        max-height: 50vh;
         padding: 10px;
     }
 
@@ -686,6 +708,12 @@ code {
         gap: 10px;
     }
 
+    .email-text {
+        top: 40px;
+        right: 10px;
+        font-size: 0.75rem;
+    }
+
     .sidebar-qr {
         padding: 5px;
     }
@@ -699,7 +727,7 @@ code {
         max-width: 20%;
     }
 
-    .estude-text, .melhosapp-text, .email-text {
+    .estude-text, .melhosapp-text {
         font-size: 0.9rem;
     }
 
@@ -761,36 +789,8 @@ code {
         font-size: 0.8rem;
     }
 
-    /* Adicione ou ajuste estas regras no final do CSS, dentro da media query */
-@media (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        left: -100%;
-        width: 80%;
-        height: 100%;
-        z-index: 1000;
-        border-right: none;
-        background-color: #f5f5f5;
+    .email-text {
+        top: 35px;
+        font-size: 0.7rem;
     }
-
-    .sidebar.active {
-        left: 0;
-    }
-
-    .close-btn {
-        display: none; /* Escondido por padrão */
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        font-size: 24px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: #000000;
-    }
-
-    .sidebar.active .close-btn {
-        display: block; /* Mostra quando a sidebar está ativa */
-    }
-}
 }
