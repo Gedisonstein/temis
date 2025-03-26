@@ -10,7 +10,7 @@ body {
     color: #333;
     display: flex;
     height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden; /* Evita rolagem horizontal */
 }
 
 .app-container {
@@ -26,6 +26,7 @@ body {
     display: flex;
     flex-direction: column;
     border-right: 1px solid #343541;
+    transition: left 0.3s ease; /* Para o menu retrátil */
 }
 
 .sidebar-header {
@@ -112,7 +113,19 @@ body {
     padding: 20px;
     overflow-y: auto;
     position: relative;
-    -webkit-overflow-scrolling: touch; /* Melhora o scroll em dispositivos */
+    -webkit-overflow-scrolling: touch;
+}
+
+.menu-btn {
+    display: none; /* Escondido por padrão */
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #000000;
 }
 
 .top-right-icons {
@@ -152,7 +165,7 @@ h1 {
     flex: auto;
     overflow-y: auto;
     padding-bottom: 20px;
-    min-height: 0; /* Evita problemas com flexbox no Edge */
+    min-height: 0;
 }
 
 .message {
@@ -245,7 +258,7 @@ h1 {
     line-height: 1.5;
     outline: none;
     resize: none;
-    overflow-y: auto; /* Alterado para auto para evitar problemas no Edge */
+    overflow-y: auto;
     min-height: 40px;
     max-height: 120px;
     box-sizing: border-box;
@@ -298,7 +311,6 @@ h1 {
 
 .config-header h1 {
     font-size: 1.5rem;
-
     font-weight: 600;
     color: #333;
 }
@@ -361,7 +373,7 @@ h1 {
 }
 
 .config-content button:hover {
-    background-color: #fea500;
+    background-color: #e69500;
 }
 
 .config-content a {
@@ -596,4 +608,156 @@ code {
 
 .popup button:hover {
     background-color: #e69500;
+}
+
+/* Media Queries para Responsividade */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column; /* Empilha sidebar e main-content */
+        height: auto;
+    }
+
+    .menu-btn {
+        display: block; /* Mostra o botão de menu */
+    }
+
+    .sidebar {
+        position: fixed;
+        left: -100%; /* Escondido por padrão */
+        width: 80%;
+        height: 100%;
+        z-index: 1000;
+        border-right: none;
+        background-color: #f5f5f5;
+    }
+
+    .sidebar.active {
+        left: 0; /* Mostra quando ativo */
+    }
+
+    .sidebar-content {
+        max-height: 50vh; /* Limita altura do histórico */
+        padding: 10px;
+    }
+
+    .main-content {
+        width: 100%;
+        padding: 10px;
+        height: 100vh;
+    }
+
+    .chat-container {
+        padding-bottom: 10px;
+    }
+
+    .message {
+        max-width: 90%;
+        margin: 5px 10px;
+        font-size: 0.9rem;
+    }
+
+    .input-form {
+        flex-direction: column;
+        padding: 10px;
+        margin: 10px 0;
+    }
+
+    .input-container {
+        width: 100%;
+        max-width: none;
+        padding: 5px;
+    }
+
+    .message-input {
+        font-size: 14px;
+        min-height: 30px;
+        max-height: 100px;
+    }
+
+    .new-chat-btn, .send-button, .custom-file-upload {
+        width: 25px;
+        height: 25px;
+        font-size: 16px;
+    }
+
+    .top-right-icons {
+        top: 10px;
+        right: 10px;
+        gap: 10px;
+    }
+
+    .sidebar-qr {
+        padding: 5px;
+    }
+
+    .qr-image {
+        width: 100px;
+        height: 100px;
+    }
+
+    .sidebar-logo {
+        max-width: 20%;
+    }
+
+    .estude-text, .melhosapp-text, .email-text {
+        font-size: 0.9rem;
+    }
+
+    h1 {
+        font-size: 1.2rem;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .header-logo {
+        height: 50px;
+    }
+
+    .config-header h1 {
+        font-size: 1.2rem;
+    }
+
+    .config-content {
+        padding: 10px;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    .config-content button {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .chat-item {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    .message {
+        font-size: 0.8rem;
+    }
+
+    .input-container {
+        padding: 3px;
+    }
+
+    .message-input {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .developer-text {
+        font-size: 0.8rem;
+    }
 }
