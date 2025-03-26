@@ -483,54 +483,35 @@ def download():
 @app.route('/check-email', methods=['POST'])
 def check_email():
     email = request.form.get('email', '').strip()
-    if not email:
-        return jsonify({'success': False, 'message': 'E-mail não fornecido.'}), 400
-
-    if not API_USE:
-        return jsonify({'success': False, 'message': 'Erro: URL da API não configurada corretamente.'}), 500
+    if not email or not API_USE:
+        return jsonify({'success': False, 'message': 'E-mail ou API não configurado.'}), 400
 
     try:
         response = requests.get(API_USE, timeout=10)
-        response.raise_for_status()
         data = response.json()
 
-        if not (data and isinstance(data, dict)):
-            return jsonify({'success': False, 'message': 'Dados da API inválidos ou vazios.'}), 400
-
-        email_sem_pontos = email.replace('.', '').lower()
-        email_key = next((key for key in data.keys() if key.lower() == email_sem_pontos), None)
-        if not email_key:
-            return jsonify({'success': False, 'message': f'O e-mail {email} não foi encontrado.'})
+        email_key = email.replace('.', '').lower()
+        if email_key not in data or not isinstance(data[email_key], dict):
+            return jsonify({'success': False, 'message': f'E-mail {email} não encontrado ou dados inválidos.'}), 400
 
         email_data = data[email_key]
-        if not isinstance(email_data, dict):
-            return jsonify({'success': False, 'message': f'O e-mail {email} foi encontrado, mas os dados não são um dicionário: {type(email_data)}.'})
-
-        email_chave_dict = email.replace('.', '')
-        if email_chave_dict not in email_data:
-            return jsonify({'success': False, 'message': f'O e-mail {email} foi encontrado, mas o dicionário não contém a chave "{email_chave_dict}": {email_data.keys()}.'})
-
-        value = email_data[email_chave_dict]
+        value = email_data.get(email_key)
         if not isinstance(value, str):
-            return jsonify({'success': False, 'message': f'O valor da chave "{email_chave_dict}" não é uma string JSON: tipo {type(value)}.'})
+            return jsonify({'success': False, 'message': 'Dados do e-mail inválidos.'}), 400
 
-        try:
-            sublist = json.loads(value)
-            if not isinstance(sublist, list):
-                return jsonify({'success': False, 'message': f'O valor desserializado da chave "{email_chave_dict}" não é uma lista: tipo {type(sublist)}.'})
-        except json.JSONDecodeError as e:
-            return jsonify({'success': False, 'message': f'Erro ao desserializar o valor da chave "{email_chave_dict}": {str(e)}.'})
-
-        if len(sublist) <= 6:
-            return jsonify({'success': False, 'message': f'A sublista para o e-mail {email} tem menos de 7 elementos: {len(sublist)} elementos.'})
+        sublist = json.loads(value)
+        if not isinstance(sublist, list) or len(sublist) < 7:
+            return jsonify({'success': False, 'message': 'Lista inválida ou insuficiente.'}), 400
 
         item_7 = sublist[6]
-        return jsonify({'success': True, 'message': f'Usuário {email} está autorizado.', 'item_7': item_7})
+        if item_7 != 'IA':
+            return jsonify({'success': False, 'message': f'Usuário {email} não autorizado: Acesse o app e confira seu plano.'}), 400
 
-    except requests.exceptions.RequestException as e:
-        print(f"Erro ao acessar a API {API_USE}: {str(e)}")
-        return jsonify({'success': False, 'message': f'Erro ao verificar o usuário {email} '}), 500
+        return jsonify({'success': True, 'message': f'Usuário {email} autorizado.', 'item_7': item_7}) # esse é o resultado que mostra o email não o index.html
 
+    except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
+        return jsonify({'success': False, 'message': f'Erro ao verificar {email}.'}), 500
+    
 # Rota para verificar o status de inicialização do modelo
 @app.route('/check-model-status', methods=['GET'])
 def check_model_status():
