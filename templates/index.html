@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Adicionado para compatibilidade com Edge -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Oi, eu sou Têmis</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -19,13 +19,10 @@
 <body>
     <div class="app-container">
         <div class="sidebar">
-            
             <button class="close-btn" onclick="toggleSidebar()">✖</button>
-           
             <div class="sidebar-header">
                 <img id="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo Têmis" class="sidebar-logo">
                 <div class="estude-text">Estude Direito</div>
-                
             </div>
             <div class="sidebar-content">
                 <div class="chat-history">
@@ -44,25 +41,22 @@
             </div>
         </div>
         <div class="main-content">
-            
             <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-            
-            <div class="top-right-icons">
-
-                <div class="email-text">Usuário</div>
-
-                
-                <a href="#" id="login" onclick="document.getElementById('login-modal').style.display='block'" class="icon-link"
-                    title="Fazer Login">
-                    <i class="fas fa-user"></i>
-                </a>
-
-                <a href="{{ url_for('download') }}" class="icon-link" title="Baixar Histórico">
-                    <i class="fas fa-download"></i>
-                </a>
-                <a href="#" id="config-link" class="icon-link" title="Configurações">
-                    <i class="fas fa-cog"></i>
-                </a>
+            <div class="top-right-container">
+                <div class="top-right-icons">
+                    <a href="#" id="login" onclick="document.getElementById('login-modal').style.display='block'" class="icon-link" title="Fazer Login">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="{{ url_for('download') }}" class="icon-link" title="Baixar Histórico">
+                        <i class="fas fa-download"></i>
+                    </a>
+                    <a href="#" id="config-link" class="icon-link" title="Configurações">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                </div>
+                <div class="top-right-email">
+                    <div class="email-text">Usuário</div>
+                </div>
             </div>
             <div class="spinner" id="spinner">
                 <div class="spinner-circle"></div>
@@ -127,13 +121,13 @@
         function showSpinner() {
             document.getElementById('spinner').style.display = 'flex';
             document.getElementById('chat-container').style.opacity = '0.5';
-            document.getElementById('message-form').style.pointerEvents = 'none'; // Desativa interação
+            document.getElementById('message-form').style.pointerEvents = 'none';
         }
 
         function hideSpinner() {
             document.getElementById('spinner').style.display = 'none';
             document.getElementById('chat-container').style.opacity = '1';
-            document.getElementById('message-form').style.pointerEvents = 'auto'; // Reativa interação
+            document.getElementById('message-form').style.pointerEvents = 'auto';
         }
 
         function addCopyButtonToCodeBlocks() {
@@ -257,7 +251,7 @@
             mensagemInput.title = isValidUrl(mensagem) ? "URL detectada!" : '';
             mensagemInput.style.height = 'auto';
             mensagemInput.style.height = `${mensagemInput.scrollHeight}px`;
-            console.log('Altura ajustada:', mensagemInput.style.height); // Debug
+            console.log('Altura ajustada:', mensagemInput.style.height);
         });
 
         document.getElementById('mensagem').addEventListener('keydown', function (e) {
@@ -283,7 +277,7 @@
 
             const emailText = document.querySelector('.email-text').textContent.trim();
             if (emailText === 'Usuário' || emailText === '') {
-                showPopup("Por favor, faça login par afala com a Têmis.");
+                showPopup("Por favor, faça login para falar com a Têmis.");
                 return;
             }
 
@@ -385,39 +379,38 @@
         });
 
         document.querySelectorAll('.chat-item').forEach(item => {
-    item.addEventListener('click', function () {
-        const specialty = this.textContent.trim();
-        showSpinner();
-        document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
-        this.classList.add('active');
+            item.addEventListener('click', function () {
+                const specialty = this.textContent.trim();
+                showSpinner();
+                document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
 
-        const formData = new FormData();
-        formData.append('specialty', specialty);
-        fetch('/set-specialty', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                hideSpinner();
-                if (data.success) {
-                    document.getElementById('chat-container').innerHTML = '';
-                    addMessageToChat('Têmis', data.message, 'bot');
-                    // Fecha a barra lateral automaticamente
-                    document.querySelector('.sidebar').classList.remove('active');
-                } else {
-                    addMessageToChat('Têmis', data.message, 'bot');
-                }
-            })
-            .catch(error => {
-                hideSpinner();
-                addMessageToChat('Têmis', `Erro ao mudar especialidade: ${error.message}`, 'bot');
+                const formData = new FormData();
+                formData.append('specialty', specialty);
+                fetch('/set-specialty', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        hideSpinner();
+                        if (data.success) {
+                            document.getElementById('chat-container').innerHTML = '';
+                            addMessageToChat('Têmis', data.message, 'bot');
+                            document.querySelector('.sidebar').classList.remove('active');
+                        } else {
+                            addMessageToChat('Têmis', data.message, 'bot');
+                        }
+                    })
+                    .catch(error => {
+                        hideSpinner();
+                        addMessageToChat('Têmis', `Erro ao mudar especialidade: ${error.message}`, 'bot');
+                    });
             });
-    });
-});
+        });
 
         document.getElementById('login').addEventListener('click', function () {
             const email = prompt('Insira o e-mail para fazer login:');
@@ -445,7 +438,6 @@
             }
         });
 
-        // Verifica o status do modelo ao carregar a página
         function checkModelStatus() {
             showSpinner();
             fetch('/check-model-status')
@@ -454,28 +446,29 @@
                     if (data.initialized) {
                         hideSpinner();
                     } else {
-                        setTimeout(checkModelStatus, 1000); // Tenta novamente após 1 segundo
+                        setTimeout(checkModelStatus, 1000);
                     }
                 })
                 .catch(error => {
                     console.error('Erro ao verificar status do modelo:', error);
-                    setTimeout(checkModelStatus, 1000); // Tenta novamente em caso de erro
+                    setTimeout(checkModelStatus, 1000);
                 });
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            checkModelStatus(); // Inicia a verificação
+            checkModelStatus();
             addCopyButtonToCodeBlocks();
             ensureInputVisible();
             if (typeof Prism !== 'undefined') {
                 Prism.highlightAll();
             }
         });
-        function toggleSidebar() {
-    document.querySelector('.sidebar').classList.toggle('active');
-}
 
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
     </script>
     <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92606c081b046757',t:'MTc0MjkyNjgyMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9268beaafa22bd5d',t:'MTc0MzAxNDA5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
