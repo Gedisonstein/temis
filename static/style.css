@@ -10,7 +10,8 @@ body {
     color: #333;
     display: flex;
     height: 100vh;
-    overflow-x: hidden; /* Evita rolagem horizontal */
+    overflow-x: hidden;
+    /* Evita rolagem horizontal */
 }
 
 .app-container {
@@ -26,7 +27,8 @@ body {
     display: flex;
     flex-direction: column;
     border-right: 1px solid #343541;
-    transition: left 0.3s ease; /* Para o menu retrátil */
+    transition: left 0.3s ease;
+    /* Para o menu retrátil */
 }
 
 .sidebar-header {
@@ -49,10 +51,18 @@ body {
 }
 
 .email-text {
+
     font-size: 0.8rem;
     color: rgb(0, 0, 0);
     margin-top: 5px;
+    margin: 0;
+    margin-right: 2000;
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+
 }
+
 
 .sidebar-content {
     flex: 1;
@@ -117,7 +127,8 @@ body {
 }
 
 .menu-btn {
-    display: none; /* Escondido por padrão */
+    display: none;
+    /* Escondido por padrão */
     position: absolute;
     top: 10px;
     left: 10px;
@@ -129,11 +140,45 @@ body {
 }
 
 .top-right-icons {
-    position: absolute;
-    top: 20px;
-    right: 20px;
     display: flex;
     gap: 15px;
+    justify-content: flex-end; /* Alinha os ícones à direita */
+}
+
+.top-right-email {
+    margin-top: 5px; /* Espaço entre os ícones e o texto */
+    font-size: 0.9rem;
+    color: #000000;
+    line-height: 1.2;
+    margin-right: 18px; /* Remove o margin-left que estava desalinhando */
+    text-align: right; /* Alinha o texto à direita */
+}
+
+@media (max-width: 768px) {
+    .top-right-container {
+        top: 10px;
+        right: 15px;
+        display: flex;
+        flex-direction: column; /* Mantém a coluna */
+        align-items: flex-end; /* Alinha à direita */
+        gap: 5px; /* Espaço entre os elementos */
+    }
+
+    .top-right-icons {
+        gap: 10px;
+        justify-content: flex-end; /* Alinha os ícones à direita */
+    }
+
+    .top-right-email {
+        margin-top: 5px; /* Espaço entre os ícones e o texto */
+        font-size: 0.8rem;
+        color: #000000;
+        line-height: 1.2;
+        margin-right: 18px;
+        max-width: 100px; /* Limita a largura do texto */
+        text-align: right; /* Alinha o texto à direita */
+        float: none; /* Remove o float que estava causando o problema */
+    }
 }
 
 .icon-link {
@@ -190,7 +235,7 @@ h1 {
 .user-message {
     background-color: #fffffe;
     color: #000000;
-    margin-left: auto;
+    margin-right: auto;
     margin-right: 20px;
 }
 
@@ -501,6 +546,7 @@ h1 {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
@@ -613,17 +659,20 @@ code {
 /* Media Queries para Responsividade */
 @media (max-width: 768px) {
     .app-container {
-        flex-direction: column; /* Empilha sidebar e main-content */
+        flex-direction: column;
+        /* Empilha sidebar e main-content */
         height: auto;
     }
 
     .menu-btn {
-        display: block; /* Mostra o botão de menu */
+        display: block;
+        /* Mostra o botão de menu */
     }
 
     .sidebar {
         position: fixed;
-        left: -100%; /* Escondido por padrão */
+        left: -100%;
+        /* Escondido por padrão */
         width: 80%;
         height: 100%;
         z-index: 1000;
@@ -632,11 +681,13 @@ code {
     }
 
     .sidebar.active {
-        left: 0; /* Mostra quando ativo */
+        left: 0;
+        /* Mostra quando ativo */
     }
 
     .sidebar-content {
-        max-height: 50vh; /* Limita altura do histórico */
+        max-height: 50vh;
+        /* Limita altura do histórico */
         padding: 10px;
     }
 
@@ -674,10 +725,22 @@ code {
         max-height: 100px;
     }
 
-    .new-chat-btn, .send-button, .custom-file-upload {
+    .new-chat-btn,
+    .send-button,
+    .custom-file-upload {
         width: 25px;
         height: 25px;
         font-size: 16px;
+    }
+
+    .top-right-container {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column; /* Organiza os elementos em coluna */
+        align-items: flex-end; /* Alinha tudo à direita */
+        gap: 5px; /* Adiciona um pequeno espaço entre os ícones e o texto */
     }
 
     .top-right-icons {
@@ -699,8 +762,11 @@ code {
         max-width: 20%;
     }
 
-    .estude-text, .melhosapp-text, .email-text {
+    .estude-text,
+    .melhosapp-text,
+    .email-text {
         font-size: 0.9rem;
+      
     }
 
     h1 {
@@ -752,7 +818,8 @@ code {
     }
 
     .close-btn {
-        display: none; /* Escondido por padrão */
+        display: none;
+        /* Escondido por padrão */
         position: absolute;
         top: 10px;
         right: 10px;
@@ -764,7 +831,8 @@ code {
     }
 
     .sidebar.active .close-btn {
-        display: block; /* Mostra quando a sidebar está ativa */
+        display: block;
+        /* Mostra quando a sidebar está ativa */
     }
 }
 
