@@ -22,7 +22,7 @@
             <div class="sidebar-header">
                 <img id="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo Têmis" class="sidebar-logo">
                 <div class="estude-text">Estude Direito</div>
-                <div class="email-text">Usuário</div>
+                
             </div>
             <div class="sidebar-content">
                 <div class="chat-history">
@@ -42,6 +42,15 @@
         </div>
         <div class="main-content">
             <div class="top-right-icons">
+
+                <div class="email-text">Usuário</div>
+
+                
+                <a href="#" id="login" onclick="document.getElementById('login-modal').style.display='block'" class="icon-link"
+                    title="Fazer Login">
+                    <i class="fas fa-user"></i>
+                </a>
+
                 <a href="{{ url_for('download') }}" class="icon-link" title="Baixar Histórico">
                     <i class="fas fa-download"></i>
                 </a>
@@ -268,7 +277,7 @@
 
             const emailText = document.querySelector('.email-text').textContent.trim();
             if (emailText === 'Usuário' || emailText === '') {
-                showPopup("Por favor, clique na logo para verificar seu usuário.");
+                showPopup("Por favor, faça login par afala com a Têmis.");
                 return;
             }
 
@@ -402,7 +411,7 @@
             });
         });
 
-        document.getElementById('logo').addEventListener('click', function () {
+        document.getElementById('login').addEventListener('click', function () {
             const email = prompt('Insira o e-mail para fazer login:');
             if (email) {
                 showSpinner();
