@@ -257,15 +257,15 @@ h1 {
 .user-message {
     background-color: #fffffe;
     color: #000000;
-    margin-right: auto;
-    margin-right: 20px;
+    margin-left: auto; /* Alinha à direita */
+    margin-right: 20px; /* Mantém um espaço à direita */
 }
 
 .bot-message {
     background-color: #d8d9da;
     color: #000000;
-    margin-right: auto;
-    margin-left: 20px;
+    margin-right: auto; /* Alinha à esquerda */
+    margin-left: 20px; /* Mantém um espaço à esquerda */
 }
 
 .input-form {
