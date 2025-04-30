@@ -44,7 +44,7 @@ CONFIG_PASSWORD = os.getenv('CONFIG_PASSWORD', '')  # Senha padrão
 API_USE = os.getenv('API_USE')
 if not validators.url(API_USE):
     print(f"Erro: API_USE ({API_USE}) não é uma URL válida. Verifique o config.env.")
-    API_USE = "https://pago-2023-default-rtdb.firebaseio.com/*Pago_Backup.json"
+    API_USE = "none"
 
 # Configuração dos modelos com limites de max_tokens por provedor
 CONFIG_MODELOS = {
