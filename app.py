@@ -19,11 +19,12 @@ from datetime import datetime
 import re
 import json
 import logging
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # Inicializa o Flask
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/temis/static', static_folder='static')  # Isso é CRUCIAL para os assets
 app.config['APPLICATION_ROOT'] = '/temis'
 app.secret_key = 'sua_chave_secreta_aqui'  # Altere para uma chave segura
 
