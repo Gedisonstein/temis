@@ -302,7 +302,8 @@ def set_specialty():
 @app.route('/temis', methods=['GET', 'POST'])
 @app.route('/temis/', methods=['GET', 'POST'])
 def index_temis():
-return index()
+    return index()
+
     # Inicializa a memória da sessão se não existir
     if 'chat_memory' not in session:
         session['chat_memory'] = []
