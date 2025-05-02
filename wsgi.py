@@ -1,10 +1,6 @@
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
-from werkzeug.wrappers import Response
-from app import app  # importa o Flask app normal
+from temis import app  # ou o nome do seu arquivo principal sem .py
 
-application = DispatcherMiddleware(
-    Response('Not Found', status=404),
-    {
-        '/temis': app
-    }
-)
+application = DispatcherMiddleware(None, {
+    '/temis': app
+})
