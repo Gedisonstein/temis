@@ -300,8 +300,9 @@ def set_specialty():
 
 # Rota principal
 @app.route('/temis', methods=['GET', 'POST'])
-@app.route('/temis/', methods=['GET', 'POST'])
-def index_temis():
+def index():
+
+
    
 
     # Inicializa a memória da sessão se não existir
