@@ -26,11 +26,6 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 # Inicializa o Flask
 app = Flask(__name__)
 
-# Monta a aplicação Flask no caminho /temis
-app.wsgi_app = DispatcherMiddleware(app, {
-    '/temis': app
-})
-
 
 
 app.secret_key = 'sua_chave_secreta_aqui'  # Altere para uma chave segura
