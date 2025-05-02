@@ -299,8 +299,10 @@ def set_specialty():
         return jsonify({'success': False, 'message': 'Erro ao configurar a especialidade.'}), 500
 
 # Rota principal
-@app.route('/', methods=['GET', 'POST'])
-def index():
+@app.route('/temis', methods=['GET', 'POST'])
+@app.route('/temis/', methods=['GET', 'POST'])
+def index_temis():
+    return index()
     # Inicializa a memória da sessão se não existir
     if 'chat_memory' not in session:
         session['chat_memory'] = []
