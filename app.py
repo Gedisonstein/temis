@@ -299,7 +299,7 @@ def set_specialty():
         return jsonify({'success': False, 'message': 'Erro ao configurar a especialidade.'}), 500
 
 # Rota principal
-@app.route('/temis', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
 
 
